@@ -43,55 +43,41 @@ const _sfc_main = common_vendor.defineComponent({
           badge: null
         })
       ],
-      // 垂直菜单列表
+      // 垂直菜单列表 - 简洁列表项
       menuList: [
         new UTSJSONObject({
           id: "address",
           title: "地址管理",
-          icon: "fa-map-marker",
-          iconColor: "#FF6B6B",
           badge: null
         }),
         new UTSJSONObject({
           id: "invoice",
           title: "发票管理",
-          icon: "fa-file-text-o",
-          iconColor: "#4ECDC4",
           badge: null
         }),
         new UTSJSONObject({
           id: "coupons",
           title: "优惠券",
-          icon: "fa-ticket",
-          iconColor: "#45B7D1",
           badge: "3"
         }),
         new UTSJSONObject({
           id: "payment",
           title: "支付方式",
-          icon: "fa-credit-card",
-          iconColor: "#96CEB4",
           badge: null
         }),
         new UTSJSONObject({
           id: "about",
           title: "关于我们",
-          icon: "fa-info-circle",
-          iconColor: "#FECA57",
           badge: null
         }),
         new UTSJSONObject({
           id: "agreement",
           title: "服务协议",
-          icon: "fa-file-text-o",
-          iconColor: "#FF9FF3",
           badge: null
         }),
         new UTSJSONObject({
           id: "help",
           title: "帮助中心",
-          icon: "fa-question-circle",
-          iconColor: "#54A0FF",
           badge: null
         })
       ]
@@ -103,7 +89,7 @@ const _sfc_main = common_vendor.defineComponent({
   methods: {
     // 加载用户信息
     loadUserInfo() {
-      common_vendor.index.__f__("log", "at pages/profile/profile.uvue:195", "加载用户信息");
+      common_vendor.index.__f__("log", "at pages/profile/profile.uvue:180", "加载用户信息");
     },
     // 跳转到设置页面
     goToSettings() {
@@ -154,7 +140,7 @@ const _sfc_main = common_vendor.defineComponent({
           common_vendor.index.showToast({ title: "客服中心功能开发中", icon: "none" });
           break;
         default:
-          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:252", "未知快捷操作:", item.id);
+          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:237", "未知快捷操作:", item.id);
       }
     },
     // 处理菜单列表点击
@@ -182,7 +168,7 @@ const _sfc_main = common_vendor.defineComponent({
           common_vendor.index.showToast({ title: "帮助中心功能开发中", icon: "none" });
           break;
         default:
-          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:281", "未知菜单项:", item.id);
+          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:266", "未知菜单项:", item.id);
       }
     }
   }
@@ -214,16 +200,14 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
     m: common_vendor.f($data.menuList, (item, index, i0) => {
       return common_vendor.e({
-        a: common_vendor.n(item.icon),
-        b: item.iconColor,
-        c: common_vendor.t(item.title),
-        d: item.badge
+        a: common_vendor.t(item.title),
+        b: item.badge
       }, item.badge ? {
-        e: common_vendor.t(item.badge)
+        c: common_vendor.t(item.badge)
       } : {}, {
-        f: item.id,
-        g: common_vendor.n(index < $data.menuList.length - 1 ? "border-b border-gray-200" : ""),
-        h: common_vendor.o(($event) => $options.handleMenuClick(item), item.id)
+        d: item.id,
+        e: common_vendor.n(index < $data.menuList.length - 1 ? "border-b border-gray-200" : ""),
+        f: common_vendor.o(($event) => $options.handleMenuClick(item), item.id)
       });
     }),
     n: common_vendor.sei(common_vendor.gei(_ctx, ""), "view")

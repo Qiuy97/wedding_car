@@ -66,3 +66,9 @@
 page.data-v-a67938aa {
   background-color: #F9F9F9;
 }
+
+/* 确保全宽 */
+.w-full.data-v-a67938aa {
+  width: 100% !important;
+  max-width: none !important;
+}
