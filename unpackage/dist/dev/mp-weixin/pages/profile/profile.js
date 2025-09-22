@@ -10,14 +10,14 @@ const _sfc_main = common_vendor.defineComponent({
         level: "VIP用户",
         phone: "138****8888"
       }),
-      // 用户统计 - 完全匹配HTML设计
+      // 用户统计 - 三列布局
       userStats: new UTSJSONObject({
-        orders: 12,
-        favorites: 8,
-        coupons: 3
+        completedOrders: 3,
+        favoriteCars: 5,
+        myRating: 4.9
       }),
-      // 主要功能菜单 - 完全匹配HTML设计
-      menuItems: [
+      // 四个快捷操作按钮
+      quickActions: [
         new UTSJSONObject({
           id: "orders",
           title: "我的订单",
@@ -31,58 +31,68 @@ const _sfc_main = common_vendor.defineComponent({
           badge: null
         }),
         new UTSJSONObject({
-          id: "coupons",
-          title: "优惠券",
-          icon: "fa-ticket",
-          badge: "3"
-        }),
-        new UTSJSONObject({
-          id: "wallet",
-          title: "我的钱包",
-          icon: "fa-credit-card",
+          id: "cars",
+          title: "我的车辆",
+          icon: "fa-car",
           badge: null
         }),
+        new UTSJSONObject({
+          id: "service",
+          title: "客服中心",
+          icon: "fa-comment",
+          badge: null
+        })
+      ],
+      // 垂直菜单列表
+      menuList: [
         new UTSJSONObject({
           id: "address",
           title: "地址管理",
           icon: "fa-map-marker",
+          iconColor: "#FF6B6B",
           badge: null
-        })
-      ],
-      // 服务与支持 - 完全匹配HTML设计
-      supportItems: [
-        new UTSJSONObject({
-          id: "help",
-          title: "帮助中心",
-          icon: "fa-question-circle"
         }),
         new UTSJSONObject({
-          id: "contact",
-          title: "联系客服",
-          icon: "fa-comment"
+          id: "invoice",
+          title: "发票管理",
+          icon: "fa-file-text-o",
+          iconColor: "#4ECDC4",
+          badge: null
         }),
         new UTSJSONObject({
-          id: "feedback",
-          title: "意见反馈",
-          icon: "fa-edit"
-        })
-      ],
-      // 其他设置 - 完全匹配HTML设计
-      otherItems: [
+          id: "coupons",
+          title: "优惠券",
+          icon: "fa-ticket",
+          iconColor: "#45B7D1",
+          badge: "3"
+        }),
         new UTSJSONObject({
-          id: "owner",
-          title: "成为车主",
-          icon: "fa-car"
+          id: "payment",
+          title: "支付方式",
+          icon: "fa-credit-card",
+          iconColor: "#96CEB4",
+          badge: null
         }),
         new UTSJSONObject({
           id: "about",
           title: "关于我们",
-          icon: "fa-info-circle"
+          icon: "fa-info-circle",
+          iconColor: "#FECA57",
+          badge: null
         }),
         new UTSJSONObject({
-          id: "settings",
-          title: "设置",
-          icon: "fa-cog"
+          id: "agreement",
+          title: "服务协议",
+          icon: "fa-file-text-o",
+          iconColor: "#FF9FF3",
+          badge: null
+        }),
+        new UTSJSONObject({
+          id: "help",
+          title: "帮助中心",
+          icon: "fa-question-circle",
+          iconColor: "#54A0FF",
+          badge: null
         })
       ]
     };
@@ -93,7 +103,7 @@ const _sfc_main = common_vendor.defineComponent({
   methods: {
     // 加载用户信息
     loadUserInfo() {
-      common_vendor.index.__f__("log", "at pages/profile/profile.uvue:198", "加载用户信息");
+      common_vendor.index.__f__("log", "at pages/profile/profile.uvue:195", "加载用户信息");
     },
     // 跳转到设置页面
     goToSettings() {
@@ -121,8 +131,15 @@ const _sfc_main = common_vendor.defineComponent({
         icon: "none"
       });
     },
-    // 处理主菜单点击
-    handleMenuClick(item = null) {
+    // 显示评分详情
+    showRating() {
+      common_vendor.index.showToast({
+        title: "评分详情功能开发中",
+        icon: "none"
+      });
+    },
+    // 处理快捷操作按钮点击
+    handleQuickAction(item = null) {
       switch (item.id) {
         case "orders":
           this.goToOrderList();
@@ -130,70 +147,42 @@ const _sfc_main = common_vendor.defineComponent({
         case "favorites":
           this.goToFavorites();
           break;
+        case "cars":
+          common_vendor.index.showToast({ title: "我的车辆功能开发中", icon: "none" });
+          break;
+        case "service":
+          common_vendor.index.showToast({ title: "客服中心功能开发中", icon: "none" });
+          break;
+        default:
+          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:252", "未知快捷操作:", item.id);
+      }
+    },
+    // 处理菜单列表点击
+    handleMenuClick(item = null) {
+      switch (item.id) {
+        case "address":
+          common_vendor.index.showToast({ title: "地址管理功能开发中", icon: "none" });
+          break;
+        case "invoice":
+          common_vendor.index.showToast({ title: "发票管理功能开发中", icon: "none" });
+          break;
         case "coupons":
           this.goToCoupons();
           break;
-        case "wallet":
-          common_vendor.index.showToast({ title: "钱包功能开发中", icon: "none" });
-          break;
-        case "address":
-          common_vendor.index.showToast({ title: "地址管理开发中", icon: "none" });
-          break;
-        default:
-          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:250", "未知菜单项:", item.id);
-      }
-    },
-    // 处理支持菜单点击
-    handleSupportClick(item = null) {
-      switch (item.id) {
-        case "help":
-          common_vendor.index.showToast({ title: "帮助中心开发中", icon: "none" });
-          break;
-        case "contact":
-          common_vendor.index.showModal(new UTSJSONObject({
-            title: "联系客服",
-            content: "客服电话：400-888-8888",
-            confirmText: "拨打",
-            success: (res) => {
-              if (res.confirm) {
-                common_vendor.index.makePhoneCall({
-                  phoneNumber: "400-888-8888"
-                });
-              }
-            }
-          }));
-          break;
-        case "feedback":
-          common_vendor.index.showToast({ title: "意见反馈开发中", icon: "none" });
-          break;
-        default:
-          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:278", "未知支持项:", item.id);
-      }
-    },
-    // 处理其他设置点击
-    handleOtherClick(item = null) {
-      switch (item.id) {
-        case "owner":
-          common_vendor.index.showModal(new UTSJSONObject({
-            title: "成为车主",
-            content: "成为车主可以发布自己的车辆赚取收益，是否前往注册？",
-            success: (res) => {
-              if (res.confirm) {
-                common_vendor.index.switchTab({
-                  url: "/pages/owner/dashboard"
-                });
-              }
-            }
-          }));
+        case "payment":
+          common_vendor.index.showToast({ title: "支付方式功能开发中", icon: "none" });
           break;
         case "about":
-          common_vendor.index.showToast({ title: "关于我们页面开发中", icon: "none" });
+          common_vendor.index.showToast({ title: "关于我们功能开发中", icon: "none" });
           break;
-        case "settings":
-          this.goToSettings();
+        case "agreement":
+          common_vendor.index.showToast({ title: "服务协议功能开发中", icon: "none" });
+          break;
+        case "help":
+          common_vendor.index.showToast({ title: "帮助中心功能开发中", icon: "none" });
           break;
         default:
-          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:305", "未知其他项:", item.id);
+          common_vendor.index.__f__("log", "at pages/profile/profile.uvue:281", "未知菜单项:", item.id);
       }
     }
   }
@@ -205,13 +194,13 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     c: common_vendor.t($data.userInfo.level),
     d: common_vendor.t($data.userInfo.phone),
     e: common_vendor.o((...args) => $options.goToSettings && $options.goToSettings(...args)),
-    f: common_vendor.t($data.userStats.orders),
+    f: common_vendor.t($data.userStats.completedOrders),
     g: common_vendor.o((...args) => $options.goToOrderList && $options.goToOrderList(...args)),
-    h: common_vendor.t($data.userStats.favorites),
+    h: common_vendor.t($data.userStats.favoriteCars),
     i: common_vendor.o((...args) => $options.goToFavorites && $options.goToFavorites(...args)),
-    j: common_vendor.t($data.userStats.coupons),
-    k: common_vendor.o((...args) => $options.goToCoupons && $options.goToCoupons(...args)),
-    l: common_vendor.f($data.menuItems, (item, index, i0) => {
+    j: common_vendor.t($data.userStats.myRating),
+    k: common_vendor.o((...args) => $options.showRating && $options.showRating(...args)),
+    l: common_vendor.f($data.quickActions, (item, index, i0) => {
       return common_vendor.e({
         a: common_vendor.n(item.icon),
         b: item.badge
@@ -220,26 +209,24 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
       } : {}, {
         d: common_vendor.t(item.title),
         e: item.id,
-        f: common_vendor.o(($event) => $options.handleMenuClick(item), item.id)
+        f: common_vendor.o(($event) => $options.handleQuickAction(item), item.id)
       });
     }),
-    m: common_vendor.f($data.supportItems, (item, index, i0) => {
-      return {
+    m: common_vendor.f($data.menuList, (item, index, i0) => {
+      return common_vendor.e({
         a: common_vendor.n(item.icon),
-        b: common_vendor.t(item.title),
-        c: item.id,
-        d: common_vendor.o(($event) => $options.handleSupportClick(item), item.id)
-      };
+        b: item.iconColor,
+        c: common_vendor.t(item.title),
+        d: item.badge
+      }, item.badge ? {
+        e: common_vendor.t(item.badge)
+      } : {}, {
+        f: item.id,
+        g: common_vendor.n(index < $data.menuList.length - 1 ? "border-b border-gray-200" : ""),
+        h: common_vendor.o(($event) => $options.handleMenuClick(item), item.id)
+      });
     }),
-    n: common_vendor.f($data.otherItems, (item, index, i0) => {
-      return {
-        a: common_vendor.n(item.icon),
-        b: common_vendor.t(item.title),
-        c: item.id,
-        d: common_vendor.o(($event) => $options.handleOtherClick(item), item.id)
-      };
-    }),
-    o: common_vendor.sei(common_vendor.gei(_ctx, ""), "view")
+    n: common_vendor.sei(common_vendor.gei(_ctx, ""), "view")
   };
 }
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__scopeId", "data-v-a67938aa"]]);

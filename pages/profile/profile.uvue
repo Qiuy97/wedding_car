@@ -20,80 +20,67 @@
         </view>
       </view>
       
-    <!-- 统计信息 - 完全匹配HTML设计 -->
+    <!-- 统计信息 - 三列网格布局 -->
     <view class="bg-white -mt-3 mx-4 rounded-lg shadow p-4 mb-4">
       <view class="grid grid-cols-3 gap-4 text-center">
         <view @click="goToOrderList">
-          <text class="text-xl font-bold text-primary">{{ userStats.orders }}</text>
-          <text class="text-neutral-light text-sm block">我的订单</text>
+          <text class="text-xl font-bold text-primary">{{ userStats.completedOrders }}</text>
+          <text class="text-neutral-light text-sm block">已完成订单</text>
         </view>
         <view @click="goToFavorites">
-          <text class="text-xl font-bold text-primary">{{ userStats.favorites }}</text>
-          <text class="text-neutral-light text-sm block">我的收藏</text>
+          <text class="text-xl font-bold text-primary">{{ userStats.favoriteCars }}</text>
+          <text class="text-neutral-light text-sm block">收藏车辆</text>
         </view>
-        <view @click="goToCoupons">
-          <text class="text-xl font-bold text-primary">{{ userStats.coupons }}</text>
-          <text class="text-neutral-light text-sm block">优惠券</text>
+        <view @click="showRating">
+          <text class="text-xl font-bold text-primary">{{ userStats.myRating }}</text>
+          <text class="text-neutral-light text-sm block">我的评分</text>
         </view>
       </view>
     </view>
 
     <scroll-view class="pb-16" scroll-y>
-      <!-- 功能菜单 - 网格布局 -->
-      <view class="bg-white mx-4 rounded-lg shadow mb-4 p-4">
-        <view class="grid grid-cols-2 gap-4">
+      <!-- 四个圆形图标按钮 - 网格布局 -->
+      <view class="bg-white mx-4 rounded-lg shadow mb-4 py-6">
+        <view class="grid grid-cols-4 gap-4 text-center">
           <view 
-            v-for="(item, index) in menuItems" 
+            v-for="(item, index) in quickActions" 
             :key="item.id" 
-            class="flex flex-col items-center p-4 bg-light rounded-lg"
-            @click="handleMenuClick(item)"
+            class="flex flex-col items-center"
+            @click="handleQuickAction(item)"
           >
-            <view class="w-12 h-12 rounded-full bg-primary-10 flex items-center justify-center mb-2 relative">
-              <text class="fa text-primary text-lg" :class="item.icon"></text>
+            <view class="w-12 h-12 rounded-full bg-light flex items-center justify-center mb-2 relative">
+              <text class="fa text-neutral text-lg" :class="item.icon"></text>
               <text v-if="item.badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full min-w-4 h-4 flex items-center justify-center">
                 {{ item.badge }}
               </text>
             </view>
-            <text class="text-sm text-center">{{ item.title }}</text>
+            <text class="text-xs text-center text-neutral">{{ item.title }}</text>
           </view>
         </view>
       </view>
 
-      <!-- 服务与支持 - 网格布局 -->
-      <view class="bg-white mx-4 rounded-lg shadow mb-4 p-4">
-        <text class="text-sm font-medium text-neutral mb-4">服务与支持</text>
-        
-        <view class="grid grid-cols-2 gap-4">
-          <view 
-            v-for="(item, index) in supportItems" 
-            :key="item.id" 
-            class="flex flex-col items-center p-4 bg-light rounded-lg"
-            @click="handleSupportClick(item)"
-          >
-            <view class="w-12 h-12 rounded-full bg-success-10 flex items-center justify-center mb-2">
-              <text class="fa text-success text-lg" :class="item.icon"></text>
-        </view>
-            <text class="text-sm text-center">{{ item.title }}</text>
-        </view>
-        </view>
-      </view>
-
-      <!-- 其他设置 - 网格布局 -->
-      <view class="bg-white mx-4 rounded-lg shadow mb-4 p-4">
-        <text class="text-sm font-medium text-neutral mb-4">其他设置</text>
-        
-        <view class="grid grid-cols-2 gap-4">
-          <view 
-            v-for="(item, index) in otherItems" 
-            :key="item.id" 
-            class="flex flex-col items-center p-4 bg-light rounded-lg"
-            @click="handleOtherClick(item)"
-          >
-            <view class="w-12 h-12 rounded-full bg-neutral-10 flex items-center justify-center mb-2">
-              <text class="fa text-neutral text-lg" :class="item.icon"></text>
-        </view>
-            <text class="text-sm text-center">{{ item.title }}</text>
-        </view>
+      <!-- 功能菜单列表 - 标准列表条目样式 -->
+      <view class="bg-white mx-4 rounded-lg shadow mb-4">
+        <view 
+          v-for="(item, index) in menuList" 
+          :key="item.id" 
+          class="flex items-center justify-between px-4 py-4"
+          :class="index < menuList.length - 1 ? 'border-b border-gray-200' : ''"
+          @click="handleMenuClick(item)"
+        >
+          <!-- 左侧内容：图标 + 文本 -->
+          <view class="flex items-center flex-1">
+            <text class="fa mr-3 text-lg" :class="item.icon" :style="{ color: item.iconColor }"></text>
+            <text class="text-neutral text-base">{{ item.title }}</text>
+          </view>
+          
+          <!-- 右侧内容：徽章 + 箭头 -->
+          <view class="flex items-center">
+            <view v-if="item.badge" class="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full mr-2 min-w-5 h-5 flex items-center justify-center">
+              <text class="text-white text-xs">{{ item.badge }}</text>
+            </view>
+            <text class="fa fa-chevron-right text-neutral-light"></text>
+          </view>
         </view>
       </view>
     </scroll-view>
@@ -111,14 +98,14 @@ export default {
         level: 'VIP用户',
         phone: '138****8888'
       },
-      // 用户统计 - 完全匹配HTML设计
+      // 用户统计 - 三列布局
       userStats: {
-        orders: 12,
-        favorites: 8,
-        coupons: 3
+        completedOrders: 3,
+        favoriteCars: 5,
+        myRating: 4.9
       },
-      // 主要功能菜单 - 完全匹配HTML设计
-      menuItems: [
+      // 四个快捷操作按钮
+      quickActions: [
         {
           id: 'orders',
           title: '我的订单',
@@ -132,58 +119,68 @@ export default {
           badge: null
         },
         {
-          id: 'coupons',
-          title: '优惠券',
-          icon: 'fa-ticket',
-          badge: '3'
-        },
-        {
-          id: 'wallet',
-          title: '我的钱包',
-          icon: 'fa-credit-card',
+          id: 'cars',
+          title: '我的车辆',
+          icon: 'fa-car',
           badge: null
         },
+        {
+          id: 'service',
+          title: '客服中心',
+          icon: 'fa-comment',
+          badge: null
+        }
+      ],
+      // 垂直菜单列表
+      menuList: [
         {
           id: 'address',
           title: '地址管理',
           icon: 'fa-map-marker',
+          iconColor: '#FF6B6B',
           badge: null
-        }
-      ],
-      // 服务与支持 - 完全匹配HTML设计
-      supportItems: [
-        {
-          id: 'help',
-          title: '帮助中心',
-          icon: 'fa-question-circle'
         },
         {
-          id: 'contact',
-          title: '联系客服',
-          icon: 'fa-comment'
+          id: 'invoice',
+          title: '发票管理',
+          icon: 'fa-file-text-o',
+          iconColor: '#4ECDC4',
+          badge: null
         },
         {
-          id: 'feedback',
-          title: '意见反馈',
-          icon: 'fa-edit'
-        }
-      ],
-      // 其他设置 - 完全匹配HTML设计
-      otherItems: [
+          id: 'coupons',
+          title: '优惠券',
+          icon: 'fa-ticket',
+          iconColor: '#45B7D1',
+          badge: '3'
+        },
         {
-          id: 'owner',
-          title: '成为车主',
-          icon: 'fa-car'
+          id: 'payment',
+          title: '支付方式',
+          icon: 'fa-credit-card',
+          iconColor: '#96CEB4',
+          badge: null
         },
         {
           id: 'about',
           title: '关于我们',
-          icon: 'fa-info-circle'
+          icon: 'fa-info-circle',
+          iconColor: '#FECA57',
+          badge: null
         },
         {
-          id: 'settings',
-          title: '设置',
-          icon: 'fa-cog'
+          id: 'agreement',
+          title: '服务协议',
+          icon: 'fa-file-text-o',
+          iconColor: '#FF9FF3',
+          badge: null
+        },
+        {
+          id: 'help',
+          title: '帮助中心',
+          icon: 'fa-question-circle',
+          iconColor: '#54A0FF',
+          badge: null
         }
       ]
     }
@@ -227,9 +224,17 @@ export default {
         icon: 'none'
       });
     },
-    
-    // 处理主菜单点击
-    handleMenuClick(item) {
+
+    // 显示评分详情
+    showRating() {
+      uni.showToast({
+        title: '评分详情功能开发中',
+        icon: 'none'
+      });
+    },
+
+    // 处理快捷操作按钮点击
+    handleQuickAction(item) {
       switch (item.id) {
         case 'orders':
           this.goToOrderList();
@@ -237,74 +242,45 @@ export default {
         case 'favorites':
           this.goToFavorites();
           break;
+        case 'cars':
+          uni.showToast({ title: '我的车辆功能开发中', icon: 'none' });
+          break;
+        case 'service':
+          uni.showToast({ title: '客服中心功能开发中', icon: 'none' });
+          break;
+        default:
+          console.log('未知快捷操作:', item.id);
+      }
+    },
+    
+    // 处理菜单列表点击
+    handleMenuClick(item) {
+      switch (item.id) {
+        case 'address':
+          uni.showToast({ title: '地址管理功能开发中', icon: 'none' });
+          break;
+        case 'invoice':
+          uni.showToast({ title: '发票管理功能开发中', icon: 'none' });
+          break;
         case 'coupons':
           this.goToCoupons();
           break;
-        case 'wallet':
-          uni.showToast({ title: '钱包功能开发中', icon: 'none' });
+        case 'payment':
+          uni.showToast({ title: '支付方式功能开发中', icon: 'none' });
           break;
-        case 'address':
-          uni.showToast({ title: '地址管理开发中', icon: 'none' });
+        case 'about':
+          uni.showToast({ title: '关于我们功能开发中', icon: 'none' });
+          break;
+        case 'agreement':
+          uni.showToast({ title: '服务协议功能开发中', icon: 'none' });
+          break;
+        case 'help':
+          uni.showToast({ title: '帮助中心功能开发中', icon: 'none' });
           break;
         default:
           console.log('未知菜单项:', item.id);
       }
     },
-    
-    // 处理支持菜单点击
-    handleSupportClick(item) {
-      switch (item.id) {
-        case 'help':
-          uni.showToast({ title: '帮助中心开发中', icon: 'none' });
-          break;
-        case 'contact':
-          uni.showModal({
-            title: '联系客服',
-            content: '客服电话：400-888-8888',
-            confirmText: '拨打',
-            success: (res) => {
-              if (res.confirm) {
-                uni.makePhoneCall({
-                  phoneNumber: '400-888-8888'
-                });
-              }
-            }
-          });
-          break;
-        case 'feedback':
-          uni.showToast({ title: '意见反馈开发中', icon: 'none' });
-          break;
-        default:
-          console.log('未知支持项:', item.id);
-      }
-    },
-    
-    // 处理其他设置点击
-    handleOtherClick(item) {
-      switch (item.id) {
-        case 'owner':
-      uni.showModal({
-        title: '成为车主',
-        content: '成为车主可以发布自己的车辆赚取收益，是否前往注册？',
-        success: (res) => {
-          if (res.confirm) {
-                uni.switchTab({
-              url: '/pages/owner/dashboard'
-            });
-          }
-        }
-      });
-          break;
-        case 'about':
-          uni.showToast({ title: '关于我们页面开发中', icon: 'none' });
-          break;
-        case 'settings':
-          this.goToSettings();
-          break;
-        default:
-          console.log('未知其他项:', item.id);
-      }
-    }
   }
 }
 </script>
