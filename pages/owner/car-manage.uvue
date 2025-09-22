@@ -1,0 +1,310 @@
+<template>
+  <view class="car-manage-page">
+    <!-- 顶部操作栏 -->
+    <view class="top-actions">
+      <view class="add-car-btn" @click="goToAddCar">
+        <text class="fa fa-plus"></text>
+        <text class="btn-text">添加车辆</text>
+      </view>
+    </view>
+
+    <!-- 车辆列表 -->
+    <scroll-view class="car-list" scroll-y>
+      <view class="car-item" 
+            v-for="car in carList" 
+            :key="car._id"
+            @click="editCar(car)">
+        <image class="car-image" :src="car.images[0]" mode="aspectFill"></image>
+        <view class="car-info">
+          <text class="car-name">{{ car.brand }} {{ car.model }}</text>
+          <text class="car-year">{{ car.year }}款 · {{ car.color }}</text>
+          <view class="car-stats">
+            <view class="stat-item">
+              <text class="stat-label">价格</text>
+              <text class="stat-value">¥{{ car.price_per_hour }}/小时</text>
+            </view>
+            <view class="stat-item">
+              <text class="stat-label">订单</text>
+              <text class="stat-value">{{ car.order_count }}单</text>
+            </view>
+          </view>
+          <view class="car-status">
+            <text class="status-text" :class="car.status === 1 ? 'online' : 'offline'">
+              {{ car.status === 1 ? '上线中' : '已下线' }}
+            </text>
+          </view>
+        </view>
+        <view class="car-actions">
+          <view class="action-btn" @click.stop="toggleCarStatus(car)">
+            <text class="fa" :class="car.status === 1 ? 'fa-pause' : 'fa-play'"></text>
+          </view>
+          <view class="action-btn" @click.stop="editCar(car)">
+            <text class="fa fa-edit"></text>
+          </view>
+          <view class="action-btn delete" @click.stop="deleteCar(car)">
+            <text class="fa fa-trash"></text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" v-if="carList.length === 0">
+        <text class="fa fa-car empty-icon"></text>
+        <text class="empty-text">还没有车辆</text>
+        <view class="empty-btn" @click="goToAddCar">
+          <text class="btn-text">添加第一辆车</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      carList: []
+    }
+  },
+  onLoad() {
+    this.loadCarList();
+  },
+  onShow() {
+    this.loadCarList();
+  },
+  methods: {
+    loadCarList() {
+      // 模拟车辆数据
+      this.carList = [
+        {
+          _id: 'car001',
+          brand: '劳斯莱斯',
+          model: '幻影',
+          year: '2023',
+          color: '珍珠白',
+          images: ['/static/cars/rolls1.jpg'],
+          price_per_hour: 2000,
+          order_count: 156,
+          status: 1
+        },
+        {
+          _id: 'car002',
+          brand: '奔驰',
+          model: 'S级',
+          year: '2024',
+          color: '香槟金',
+          images: ['/static/cars/benz1.jpg'],
+          price_per_hour: 800,
+          order_count: 89,
+          status: 1
+        }
+      ];
+    },
+    goToAddCar() {
+      uni.navigateTo({
+        url: '/pages/owner/car-add'
+      });
+    },
+    editCar(car) {
+      uni.navigateTo({
+        url: `/pages/owner/car-edit?id=${car._id}`
+      });
+    },
+    toggleCarStatus(car) {
+      car.status = car.status === 1 ? 0 : 1;
+      uni.showToast({
+        title: car.status === 1 ? '车辆已上线' : '车辆已下线',
+        icon: 'success'
+      });
+    },
+    deleteCar(car) {
+      uni.showModal({
+        title: '删除车辆',
+        content: '确定要删除这辆车吗？删除后无法恢复。',
+        success: (res) => {
+          if (res.confirm) {
+            const index = this.carList.findIndex(item => item._id === car._id);
+            if (index > -1) {
+              this.carList.splice(index, 1);
+            }
+            uni.showToast({
+              title: '删除成功',
+              icon: 'success'
+            });
+          }
+        }
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.car-manage-page {
+  background-color: $uni-bg-color-grey;
+  min-height: 100vh;
+}
+
+.top-actions {
+  background: white;
+  padding: 16px;
+  border-bottom: 1px solid $uni-border-color-light;
+  
+  .add-car-btn {
+    background: $uni-color-primary;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .fa {
+      margin-right: 6px;
+      font-size: 14px;
+    }
+    
+    .btn-text {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+.car-list {
+  flex: 1;
+  padding: 16px;
+  
+  .car-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 12px;
+    
+    .car-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    
+    .car-info {
+      flex: 1;
+      
+      .car-name {
+        font-size: 16px;
+        font-weight: bold;
+        color: $uni-text-color;
+        display: block;
+        margin-bottom: 4px;
+      }
+      
+      .car-year {
+        font-size: 12px;
+        color: $uni-text-color-grey;
+        display: block;
+        margin-bottom: 8px;
+      }
+      
+      .car-stats {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 8px;
+        
+        .stat-item {
+          .stat-label {
+            font-size: 10px;
+            color: $uni-text-color-grey;
+            display: block;
+            margin-bottom: 2px;
+          }
+          
+          .stat-value {
+            font-size: 12px;
+            color: $uni-text-color;
+            font-weight: 500;
+          }
+        }
+      }
+      
+      .car-status {
+        .status-text {
+          font-size: 12px;
+          padding: 2px 8px;
+          border-radius: 10px;
+          
+          &.online {
+            background: rgba($uni-color-success, 0.1);
+            color: $uni-color-success;
+          }
+          
+          &.offline {
+            background: rgba($uni-color-error, 0.1);
+            color: $uni-color-error;
+          }
+        }
+      }
+    }
+    
+    .car-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        background: $uni-bg-color-light;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $uni-text-color;
+        
+        &.delete {
+          background: rgba($uni-color-error, 0.1);
+          color: $uni-color-error;
+        }
+        
+        .fa {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: $uni-text-color-grey;
+    display: block;
+    margin-bottom: 16px;
+  }
+  
+  .empty-text {
+    font-size: 16px;
+    color: $uni-text-color-grey;
+    display: block;
+    margin-bottom: 24px;
+  }
+  
+  .empty-btn {
+    background: $uni-color-primary;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    display: inline-block;
+    
+    .btn-text {
+      font-size: 14px;
+    }
+  }
+}
+</style>

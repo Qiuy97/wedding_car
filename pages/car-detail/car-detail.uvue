@@ -1,0 +1,321 @@
+<template>
+  <!-- 车辆详情页 - 完全匹配HTML设计 -->
+  <view class="bg-white min-h-screen relative overflow-hidden">
+    <!-- 图片轮播 - 完全匹配HTML设计 -->
+    <view class="relative" style="height: 220px;">
+      <swiper 
+        class="flex transition-transform duration-500 h-full"
+        indicator-dots
+        indicator-color="rgba(255,255,255,0.5)"
+        indicator-active-color="#ffffff"
+        autoplay
+        circular
+        :interval="5000"
+        :duration="500"
+      >
+        <swiper-item v-for="(image, index) in carDetail.images" :key="index">
+          <view class="min-w-full h-full">
+            <image :src="image" :alt="carDetail.imageAlts[index]" class="w-full h-full object-cover" mode="aspectFill"></image>
+          </view>
+        </swiper-item>
+      </swiper>
+      
+      <!-- 收藏按钮 -->
+      <button class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black-30 backdrop-blur-sm flex items-center justify-center text-white" @click="toggleFavorite">
+        <text class="fa" :class="carDetail.isFavorite ? 'fa-heart' : 'fa-heart-o'"></text>
+      </button>
+    </view>
+
+    <scroll-view class="pb-16" scroll-y>
+      <!-- 基本信息 - 完全匹配HTML设计 -->
+      <view class="p-4 bg-white">
+        <view class="flex justify-between items-start">
+          <view>
+            <text class="text-xl font-semibold">{{ carDetail.name }}</text>
+            <view class="flex items-center mt-1">
+              <view class="flex items-center mr-3">
+                <text class="fa fa-star text-secondary text-xs mr-1"></text>
+                <text class="text-sm">{{ carDetail.rating }}</text>
+                <text class="text-neutral-light text-xs ml-1">({{ carDetail.reviewCount }}条评价)</text>
+        </view>
+              <view class="text-success text-xs flex items-center">
+                <text class="fa fa-check-circle mr-1"></text>
+                <text>已认证</text>
+        </view>
+            </view>
+            </view>
+          <view class="text-right">
+            <view class="text-primary font-bold text-xl">
+              ¥{{ carDetail.price }}
+              <text class="text-neutral-light text-sm font-normal">/天</text>
+            </view>
+            <view class="text-neutral-light text-xs">含司机服务费</view>
+        </view>
+      </view>
+
+        <!-- 车辆参数 - 完全匹配HTML设计 -->
+        <view class="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-gray-100">
+          <view class="text-center">
+            <view class="text-sm">颜色</view>
+            <view class="text-neutral-light text-xs mt-1">{{ carDetail.color }}</view>
+          </view>
+          <view class="text-center">
+            <view class="text-sm">座位</view>
+            <view class="text-neutral-light text-xs mt-1">{{ carDetail.seats }}座</view>
+          </view>
+          <view class="text-center">
+            <view class="text-sm">变速箱</view>
+            <view class="text-neutral-light text-xs mt-1">{{ carDetail.transmission }}</view>
+          </view>
+          <view class="text-center">
+            <view class="text-sm">里程</view>
+            <view class="text-neutral-light text-xs mt-1">{{ carDetail.mileage }}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 服务详情 - 完全匹配HTML设计 -->
+      <view class="mt-3 bg-white p-4">
+        <text class="font-semibold mb-3">服务详情</text>
+        
+        <view class="space-y-3">
+          <view v-for="service in serviceDetails" :key="service.name" class="flex justify-between items-center py-2 border-b border-gray-100">
+            <view class="text-sm">{{ service.name }}</view>
+            <view class="text-sm text-neutral-light">{{ service.value }}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 车主信息 - 完全匹配HTML设计 -->
+      <view class="mt-3 bg-white p-4">
+        <text class="font-semibold mb-3">车主信息</text>
+        
+        <view class="flex items-center">
+          <image :src="ownerInfo.avatar" alt="车主头像" class="w-12 h-12 rounded-full object-cover" mode="aspectFill"></image>
+          <view class="ml-3 flex-1">
+            <view class="flex items-center">
+              <text class="font-medium">{{ ownerInfo.name }}</text>
+              <view class="ml-2 bg-primary-10 text-primary text-xs px-2 py-0.5 rounded-full">
+                {{ ownerInfo.badge }}
+        </view>
+            </view>
+            <view class="flex items-center mt-1">
+              <view class="flex items-center text-sm mr-3">
+                <text class="fa fa-star text-secondary text-xs mr-1"></text>
+                <text>{{ ownerInfo.rating }}</text>
+              </view>
+              <view class="text-neutral-light text-sm">接单{{ ownerInfo.orderCount }}次</view>
+            </view>
+          </view>
+          <button class="bg-light text-neutral p-2 rounded-full" @click="contactOwner">
+            <text class="fa fa-comment"></text>
+          </button>
+        </view>
+      </view>
+
+      <!-- 车辆描述 - 完全匹配HTML设计 -->
+      <view class="mt-3 bg-white p-4">
+        <text class="font-semibold mb-3">车辆描述</text>
+        
+        <text class="text-sm text-neutral-light leading-relaxed">
+          {{ carDetail.description }}
+        </text>
+      </view>
+
+      <!-- 用户评价 - 完全匹配HTML设计 -->
+      <view class="mt-3 bg-white p-4">
+        <view class="flex justify-between items-center mb-3">
+          <text class="font-semibold">用户评价 ({{ reviews.length }})</text>
+          <text class="text-primary text-sm">查看全部</text>
+        </view>
+        
+        <view class="space-y-4">
+          <!-- 评价项 -->
+          <view v-for="review in reviews" :key="review._id">
+            <view class="flex items-center">
+              <image :src="review.user.avatar" :alt="review.user.name" class="w-8 h-8 rounded-full object-cover" mode="aspectFill"></image>
+              <view class="ml-2">
+                <view class="font-medium text-sm">{{ review.user.name }}</view>
+                <view class="flex items-center mt-0.5">
+                  <view class="flex">
+                    <text 
+                      v-for="i in 5" 
+                      :key="i" 
+                      class="fa text-xs"
+                      :class="i <= review.rating ? 'fa-star text-secondary' : 'fa-star-o text-secondary'"
+                    ></text>
+                  </view>
+                  <text class="text-neutral-light text-xs ml-2">{{ review.date }}</text>
+                </view>
+              </view>
+            </view>
+            <text class="text-sm mt-2">{{ review.comment }}</text>
+            <view v-if="review.images && review.images.length" class="flex space-x-1 mt-2">
+              <image 
+                v-for="img in review.images" 
+                :key="img" 
+                :src="img" 
+                alt="评价图片" 
+                class="w-16 h-16 rounded object-cover" 
+                mode="aspectFill"
+              ></image>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 底部操作栏 - 完全匹配HTML设计 -->
+    <view class="fixed bottom-16 left-0 right-0 bg-white border-t border-gray-100 p-3 flex justify-between">
+      <button class="flex-1 bg-light text-primary font-medium py-3 rounded-lg mr-2 flex items-center justify-center" @click="contactOwner">
+        <text class="fa fa-phone mr-2"></text>
+        <text>联系车主</text>
+      </button>
+      <button class="flex-1 bg-primary text-white font-medium py-3 rounded-lg ml-2 btn-hover" @click="goToBooking">
+        立即预订
+      </button>
+    </view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      carId: '',
+      // 车辆详情数据 - 完全匹配HTML设计
+      carDetail: {
+        _id: 'car001',
+        name: '奔驰S级',
+          images: [
+          'https://picsum.photos/600/400?random=30',
+          'https://picsum.photos/600/400?random=31',
+          'https://picsum.photos/600/400?random=32'
+        ],
+        imageAlts: ['奔驰S级婚车正面', '奔驰S级婚车侧面', '奔驰S级婚车内饰'],
+          rating: 4.9,
+        reviewCount: 128,
+        price: 2800,
+        color: '黑色',
+        seats: 5,
+        transmission: '自动',
+        mileage: '2.5万km',
+        description: '这是一辆精心保养的奔驰S级婚车，外观大气优雅，内饰豪华舒适。车辆配备专业司机，确保您的婚礼当天安全舒适。我们提供全套婚车装饰服务，让您的婚礼更加完美难忘。',
+          isFavorite: false
+      },
+      // 服务详情 - 完全匹配HTML设计
+      serviceDetails: [
+        { name: '司机服务', value: '包含' },
+        { name: '婚车装饰', value: '包含' },
+        { name: '油费过路费', value: '包含' },
+        { name: '保险', value: '全险' },
+        { name: '服务时间', value: '8小时' },
+        { name: '超时费用', value: '50元/小时' }
+      ],
+      // 车主信息 - 完全匹配HTML设计
+      ownerInfo: {
+          _id: 'owner001',
+        name: '张师傅',
+        avatar: 'https://picsum.photos/100/100?random=40',
+        badge: '金牌车主',
+        rating: 4.9,
+        orderCount: 256
+      },
+      // 用户评价 - 完全匹配HTML设计
+      reviews: [
+          {
+            _id: 'review001',
+            user: {
+            name: '李**',
+            avatar: 'https://picsum.photos/50/50?random=50'
+            },
+            rating: 5,
+          date: '1周前',
+          comment: '车子很新很干净，师傅很专业，服务态度非常好，婚礼当天很顺利，强烈推荐！',
+          images: ['https://picsum.photos/200/200?random=60']
+          },
+          {
+            _id: 'review002',
+            user: {
+            name: '王**',
+            avatar: 'https://picsum.photos/50/50?random=51'
+            },
+            rating: 5,
+          date: '2周前',
+          comment: '奔驰S级就是不一样，很有面子，装饰也很漂亮，非常满意！',
+          images: []
+        }
+      ]
+    }
+  },
+  onLoad(options) {
+    this.carId = options.id || 'car001';
+    // 根据carId加载对应的车辆详情
+    this.loadCarDetail();
+  },
+  methods: {
+    // 加载车辆详情
+    loadCarDetail() {
+      // 在实际应用中，这里会调用API获取车辆详情
+      console.log('加载车辆详情，ID:', this.carId);
+      // 可以根据carId动态调整数据
+    },
+    
+    // 切换收藏状态
+    toggleFavorite() {
+      this.carDetail.isFavorite = !this.carDetail.isFavorite;
+      uni.showToast({
+        title: this.carDetail.isFavorite ? '已收藏' : '已取消收藏',
+        icon: 'none'
+      });
+    },
+    
+    // 联系车主
+    contactOwner() {
+      uni.showModal({
+        title: '联系车主',
+        content: '是否拨打车主电话？',
+        success: (res) => {
+          if (res.confirm) {
+            uni.makePhoneCall({
+              phoneNumber: '13800138000'
+            });
+          }
+        }
+      });
+    },
+    
+    // 跳转到预订页面
+    goToBooking() {
+      uni.navigateTo({
+        url: `/pages/booking/booking?carId=${this.carId}&carName=${this.carDetail.name}&price=${this.carDetail.price}`
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+/* 页面特定样式 - 使用全局Tailwind CSS类，只定义特殊需求 */
+
+/* 确保图标字体正确显示 */
+.fa {
+  font-family: 'FontAwesome' !important;
+}
+
+/* 触摸反馈效果 - 匹配HTML设计 */
+.btn-hover:active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(183, 110, 121, 0.3);
+}
+
+/* 背景模糊效果 */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* 状态栏适配 */
+page {
+  background-color: #F9F9F9;
+}
+</style>

@@ -1,0 +1,242 @@
+<template>
+  <view class="favorites-page">
+    <scroll-view class="content-scroll" scroll-y>
+      <view class="car-list" v-if="favoriteList.length > 0">
+        <view class="car-item" 
+              v-for="car in favoriteList" 
+              :key="car._id"
+              @click="goToCarDetail(car)">
+          <image class="car-image" :src="car.images[0]" mode="aspectFill"></image>
+          <view class="car-info">
+            <text class="car-name">{{ car.brand }} {{ car.model }}</text>
+            <view class="car-rating">
+              <text class="fa fa-star rating-star"></text>
+              <text class="rating-text">{{ car.rating }}</text>
+              <text class="order-count">({{ car.order_count }}单)</text>
+            </view>
+            <view class="car-price">
+              <text class="price-text">¥{{ car.price_per_hour }}</text>
+              <text class="price-unit">/小时</text>
+            </view>
+            <text class="car-location">{{ car.service_area }}</text>
+          </view>
+          <view class="favorite-btn" @click.stop="removeFavorite(car)">
+            <text class="fa fa-heart"></text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 空状态 -->
+      <view class="empty-state" v-else>
+        <text class="fa fa-heart-o empty-icon"></text>
+        <text class="empty-text">暂无收藏车辆</text>
+        <view class="empty-btn" @click="goToSearch">
+          <text class="btn-text">去看看</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      favoriteList: []
+    }
+  },
+  onLoad() {
+    this.loadFavoriteList();
+  },
+  onShow() {
+    this.loadFavoriteList();
+  },
+  methods: {
+    loadFavoriteList() {
+      // 模拟收藏数据
+      this.favoriteList = [
+        {
+          _id: 'car001',
+          brand: '劳斯莱斯',
+          model: '幻影',
+          images: ['/static/cars/rolls1.jpg'],
+          rating: 4.9,
+          order_count: 156,
+          price_per_hour: 2000,
+          service_area: '朝阳区'
+        },
+        {
+          _id: 'car002',
+          brand: '奔驰',
+          model: 'S级',
+          images: ['/static/cars/benz1.jpg'],
+          rating: 4.8,
+          order_count: 89,
+          price_per_hour: 800,
+          service_area: '海淀区'
+        }
+      ];
+    },
+    removeFavorite(car) {
+      uni.showModal({
+        title: '取消收藏',
+        content: '确定要取消收藏这辆车吗？',
+        success: (res) => {
+          if (res.confirm) {
+            const index = this.favoriteList.findIndex(item => item._id === car._id);
+            if (index > -1) {
+              this.favoriteList.splice(index, 1);
+            }
+            uni.showToast({
+              title: '已取消收藏',
+              icon: 'success'
+            });
+          }
+        }
+      });
+    },
+    goToCarDetail(car) {
+      uni.navigateTo({
+        url: `/pages/car-detail/car-detail?id=${car._id}`
+      });
+    },
+    goToSearch() {
+      uni.switchTab({
+        url: '/pages/search/search'
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.favorites-page {
+  background-color: $uni-bg-color-grey;
+  min-height: 100vh;
+}
+
+.content-scroll {
+  padding: 16px;
+}
+
+.car-list {
+  .car-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 12px;
+    
+    .car-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    
+    .car-info {
+      flex: 1;
+      
+      .car-name {
+        font-size: 16px;
+        font-weight: bold;
+        color: $uni-text-color;
+        display: block;
+        margin-bottom: 8px;
+      }
+      
+      .car-rating {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        
+        .rating-star {
+          color: $uni-color-secondary;
+          font-size: 14px;
+          margin-right: 4px;
+        }
+        
+        .rating-text {
+          font-size: 14px;
+          color: $uni-text-color;
+          margin-right: 8px;
+        }
+        
+        .order-count {
+          font-size: 12px;
+          color: $uni-text-color-grey;
+        }
+      }
+      
+      .car-price {
+        display: flex;
+        align-items: baseline;
+        margin-bottom: 8px;
+        
+        .price-text {
+          font-size: 18px;
+          font-weight: bold;
+          color: $uni-color-primary;
+        }
+        
+        .price-unit {
+          font-size: 12px;
+          color: $uni-text-color-grey;
+          margin-left: 2px;
+        }
+      }
+      
+      .car-location {
+        font-size: 12px;
+        color: $uni-text-color-grey;
+      }
+    }
+    
+    .favorite-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .fa-heart {
+        color: $uni-color-primary;
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  
+  .empty-icon {
+    font-size: 64px;
+    color: $uni-text-color-grey;
+    display: block;
+    margin-bottom: 16px;
+  }
+  
+  .empty-text {
+    font-size: 16px;
+    color: $uni-text-color-grey;
+    display: block;
+    margin-bottom: 24px;
+  }
+  
+  .empty-btn {
+    background: $uni-color-primary;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    display: inline-block;
+    
+    .btn-text {
+      font-size: 14px;
+    }
+  }
+}
+</style>

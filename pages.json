@@ -1,0 +1,126 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "婚车宝"
+			}
+		},
+		{
+			"path": "pages/search/search",
+			"style": {
+				"navigationBarTitleText": "搜索车辆"
+			}
+		},
+		{
+			"path": "pages/car-detail/car-detail",
+			"style": {
+				"navigationBarTitleText": "车辆详情"
+			}
+		},
+		{
+			"path": "pages/booking/booking",
+			"style": {
+				"navigationBarTitleText": "预订车辆"
+			}
+		},
+		{
+			"path": "pages/payment/payment",
+			"style": {
+				"navigationBarTitleText": "支付订单"
+			}
+		},
+		{
+			"path": "pages/order-success/order-success",
+			"style": {
+				"navigationBarTitleText": "预订成功"
+			}
+		},
+		{
+			"path": "pages/order-detail/order-detail",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		},
+		{
+			"path": "pages/order-list/order-list",
+			"style": {
+				"navigationBarTitleText": "我的订单"
+			}
+		},
+		{
+			"path": "pages/profile/profile",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		},
+		{
+			"path": "pages/favorites/favorites",
+			"style": {
+				"navigationBarTitleText": "我的收藏"
+			}
+		},
+		{
+			"path": "pages/owner/dashboard",
+			"style": {
+				"navigationBarTitleText": "车主中心"
+			}
+		},
+		{
+			"path": "pages/owner/car-manage",
+			"style": {
+				"navigationBarTitleText": "车辆管理"
+			}
+		},
+		{
+			"path": "pages/owner/car-add",
+			"style": {
+				"navigationBarTitleText": "添加车辆"
+			}
+		},
+		{
+			"path": "pages/owner/order-manage",
+			"style": {
+				"navigationBarTitleText": "订单管理"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "婚车宝",
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#F9F9F9",
+		"backgroundColorTop": "#F9F9F9",
+		"backgroundColorBottom": "#F9F9F9"
+	},
+	"tabBar": {
+		"color": "#7F8C8D",
+		"selectedColor": "#B76E79",
+		"backgroundColor": "#ffffff",
+		"borderStyle": "white",
+		"height": "60px",
+		"fontSize": "12px",
+		"iconWidth": "24px",
+		"spacing": "4px",
+		"custom": true,
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/search/search", 
+				"text": "车辆"
+			},
+			{
+				"pagePath": "pages/owner/dashboard",
+				"text": "车主"
+			},
+			{
+				"pagePath": "pages/profile/profile",
+				"text": "我的"
+			}
+		]
+	},
+	"uniIdRouter": {}
+}

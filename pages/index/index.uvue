@@ -1,0 +1,215 @@
+<template>
+  <!-- 页面容器 - 完全匹配HTML设计 -->
+  <view class="bg-white min-h-screen relative overflow-hidden">
+    <!-- 主内容区 -->
+    <scroll-view class="pb-16" scroll-y>
+      <!-- 轮播区域 - 完全匹配HTML设计 -->
+      <view class="relative overflow-hidden" style="height: 180px;">
+        <swiper 
+          class="flex transition-transform duration-500 h-full" 
+          indicator-dots 
+          indicator-color="rgba(255,255,255,0.5)" 
+          indicator-active-color="#ffffff" 
+          autoplay 
+          circular
+          :interval="5000"
+          :duration="500"
+        >
+          <swiper-item v-for="(banner, index) in carouselList" :key="index">
+            <view class="min-w-full h-full relative">
+              <image :src="banner.image" :alt="banner.alt" class="w-full h-full object-cover" mode="aspectFill"></image>
+              <view class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black-60 to-transparent p-4 text-white">
+                <text class="font-medium">{{ banner.title }}</text>
+                <text class="text-sm opacity-90">{{ banner.subtitle }}</text>
+              </view>
+            </view>
+          </swiper-item>
+        </swiper>
+      </view>
+
+      <!-- 快捷入口 - 完全匹配HTML设计 -->
+      <view class="px-4 py-6">
+        <view class="grid grid-cols-4 gap-3">
+          <view 
+            v-for="(entry, index) in quickEntries" 
+            :key="index" 
+            class="flex flex-col items-center" 
+            @click="handleQuickEntry(entry)"
+          >
+            <view class="w-14 h-14 rounded-full bg-primary-10 flex items-center justify-center mb-2">
+              <text class="fa text-primary text-xl" :class="entry.icon"></text>
+            </view>
+            <text class="text-sm">{{ entry.name }}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 推荐车型 - 完全匹配HTML设计 -->
+      <view class="px-4 pb-6">
+        <view class="flex justify-between items-center mb-4">
+          <text class="text-lg font-semibold">推荐车型</text>
+          <text class="text-primary text-sm" @click="goToSearch">
+            查看全部 <text class="fa fa-angle-right"></text>
+          </text>
+        </view>
+
+        <view class="space-y-4">
+          <!-- 车型卡片 -->
+          <view 
+            v-for="(car, index) in recommendCars" 
+            :key="index" 
+            class="bg-white rounded-xl overflow-hidden card-shadow btn-hover" 
+            @click="goToCarDetail(car)"
+          >
+            <view class="relative">
+              <image :src="car.image" :alt="car.alt" class="w-full h-48 object-cover" mode="aspectFill"></image>
+              <view v-if="car.tag" class="absolute top-3 right-3 text-white text-xs px-2 py-1 rounded-full" :class="car.tagClass">
+                {{ car.tag }}
+              </view>
+            </view>
+            <view class="p-4">
+              <view class="flex justify-between items-start mb-2">
+                <text class="font-semibold">{{ car.name }}</text>
+                <view class="flex items-center">
+                  <text class="fa fa-star text-secondary text-xs mr-1"></text>
+                  <text class="text-sm">{{ car.rating }}</text>
+                </view>
+                </view>
+              <text class="text-neutral-light text-sm mb-3">{{ car.specs }}</text>
+              <view class="flex justify-between items-center">
+                <view>
+                  <text class="text-primary font-bold text-lg">¥{{ car.price }}</text>
+                  <text class="text-neutral-light text-sm">/天</text>
+                </view>
+                <button class="bg-primary-10 text-primary text-sm px-3 py-1 rounded-full">
+                  立即预订
+                </button>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      // 轮播数据 - 完全匹配HTML设计
+      carouselList: [
+        {
+          image: 'https://picsum.photos/600/300?random=1',
+          alt: '豪华婚车展示',
+          title: '七夕婚车特惠',
+          subtitle: '预订即享8折优惠'
+        },
+        {
+          image: 'https://picsum.photos/600/300?random=2',
+          alt: '婚车车队展示',
+          title: '热门车型推荐',
+          subtitle: '奔驰S级立减2000元'
+        },
+        {
+          image: 'https://picsum.photos/600/300?random=3',
+          alt: '婚车装饰展示',
+          title: '婚车装饰套餐',
+          subtitle: '满1000减300'
+        }
+      ],
+      // 快捷入口 - 完全匹配HTML设计
+      quickEntries: [
+        { name: '豪华轿车', icon: 'fa-car', type: 'luxury' },
+        { name: '跑车系列', icon: 'fa-bolt', type: 'sports' },
+        { name: 'SUV系列', icon: 'fa-truck', type: 'suv' },
+        { name: '特惠活动', icon: 'fa-tag', type: 'promotion' }
+      ],
+      // 推荐车型 - 完全匹配HTML设计
+      recommendCars: [
+        {
+          _id: 'car001',
+          name: '奔驰S级',
+          image: 'https://picsum.photos/600/400?random=10',
+          alt: '奔驰S级婚车',
+          rating: 4.9,
+          specs: '黑色 / 5座 / 自动',
+          price: 2800,
+          tag: '热门',
+          tagClass: 'bg-primary'
+        },
+        {
+          _id: 'car002',
+          name: '宝马7系',
+          image: 'https://picsum.photos/600/400?random=11',
+          alt: '宝马7系婚车',
+          rating: 4.8,
+          specs: '黑色 / 5座 / 自动',
+          price: 2500,
+          tag: '特惠',
+          tagClass: 'bg-secondary'
+        },
+        {
+          _id: 'car003',
+          name: '奥迪A8',
+          image: 'https://picsum.photos/600/400?random=12',
+          alt: '奥迪A8婚车',
+          rating: 4.7,
+          specs: '黑色 / 5座 / 自动',
+          price: 2200,
+          tag: '',
+          tagClass: ''
+        }
+      ]
+    }
+  },
+  methods: {
+    // 快捷入口点击处理 - 匹配HTML功能
+    handleQuickEntry(entry) {
+      // 跳转到搜索页面并传递筛选条件
+      uni.switchTab({
+        url: '/pages/search/search'
+      });
+      // 可以通过全局状态或本地存储传递筛选条件
+      uni.setStorageSync('searchFilter', entry.type);
+    },
+    // 查看全部车辆
+    goToSearch() {
+      uni.switchTab({
+        url: '/pages/search/search'
+      });
+    },
+    // 跳转车辆详情
+    goToCarDetail(car) {
+      uni.navigateTo({
+        url: `/pages/car-detail/car-detail?id=${car._id}`
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+/* 页面特定样式 - 使用全局Tailwind CSS类，只定义特殊需求 */
+
+/* 渐变背景 - HTML中的特殊效果 */
+.bg-gradient-to-t.from-black-60.to-transparent {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+}
+
+/* 确保图标字体正确显示 */
+.fa {
+  font-family: 'FontAwesome' !important;
+}
+
+/* 触摸反馈效果 - 匹配HTML设计 */
+.btn-hover:active {
+        transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(183, 110, 121, 0.3);
+}
+
+/* 状态栏适配 */
+page {
+  background-color: #F9F9F9;
+}
+</style>

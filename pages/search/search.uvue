@@ -1,0 +1,280 @@
+<template>
+  <!-- 车辆列表页 - 完全匹配HTML设计 -->
+  <view class="bg-white min-h-screen relative overflow-hidden">
+    <!-- 搜索和筛选栏 - 完全匹配HTML设计 -->
+    <view class="sticky top-0 bg-white z-40 shadow-sm p-3">
+      <view class="relative mb-3">
+        <input type="text" placeholder="搜索车型或品牌" v-model="searchKeyword" @input="handleSearch" class="w-full bg-light rounded-full py-2 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+        <text class="fa fa-search absolute left-4 top-3 text-neutral-light"></text>
+    </view>
+
+      <scroll-view class="flex items-center justify-between overflow-x-auto scrollbar-hide pb-1" scroll-x>
+        <view class="flex">
+          <button 
+            class="whitespace-nowrap px-4 py-1.5 text-sm rounded-full mr-2"
+            :class="activeFilter === 'all' ? 'bg-primary text-white' : 'bg-light text-neutral'"
+            @click="setActiveFilter('all')"
+          >
+            全部车型
+          </button>
+          <button 
+            class="whitespace-nowrap px-4 py-1.5 text-sm rounded-full mr-2"
+            :class="activeFilter === 'price' ? 'bg-primary text-white' : 'bg-light text-neutral'"
+            @click="setActiveFilter('price')"
+          >
+            价格排序
+          </button>
+          <button 
+            class="whitespace-nowrap px-4 py-1.5 text-sm rounded-full mr-2"
+            :class="activeFilter === 'rating' ? 'bg-primary text-white' : 'bg-light text-neutral'"
+            @click="setActiveFilter('rating')"
+          >
+            评分优先
+          </button>
+          <button 
+            class="whitespace-nowrap px-4 py-1.5 text-sm rounded-full mr-2"
+            :class="activeFilter === 'benz' ? 'bg-primary text-white' : 'bg-light text-neutral'"
+            @click="setActiveFilter('benz')"
+          >
+            奔驰
+          </button>
+          <button 
+            class="whitespace-nowrap px-4 py-1.5 text-sm rounded-full mr-2"
+            :class="activeFilter === 'bmw' ? 'bg-primary text-white' : 'bg-light text-neutral'"
+            @click="setActiveFilter('bmw')"
+          >
+            宝马
+          </button>
+          <button 
+            class="whitespace-nowrap px-4 py-1.5 text-sm rounded-full mr-2"
+            :class="activeFilter === 'audi' ? 'bg-primary text-white' : 'bg-light text-neutral'"
+            @click="setActiveFilter('audi')"
+          >
+            奥迪
+          </button>
+          <button 
+            class="whitespace-nowrap px-4 py-1.5 text-sm rounded-full"
+            :class="activeFilter === 'more' ? 'bg-primary text-white' : 'bg-light text-neutral'"
+            @click="setActiveFilter('more')"
+          >
+            更多筛选
+          </button>
+      </view>
+    </scroll-view>
+      </view>
+
+    <!-- 切换视图按钮 -->
+    <view class="flex justify-end p-3 bg-white border-b border-gray-100">
+      <button class="text-primary p-2" @click="viewMode = 'grid'">
+        <text class="fa fa-th-large"></text>
+      </button>
+      <button class="text-neutral-light p-2" @click="viewMode = 'list'">
+        <text class="fa fa-map-marker"></text>
+      </button>
+    </view>
+
+    <!-- 车辆列表 -->
+    <scroll-view class="p-4 space-y-4" scroll-y @scrolltolower="loadMore">
+      <!-- 列表项 - 完全匹配HTML设计 -->
+      <view 
+              v-for="(car, index) in carList" 
+              :key="car._id"
+        class="flex bg-white rounded-xl overflow-hidden card-shadow btn-hover" 
+        @click="goToCarDetail(car)"
+      >
+        <image :src="car.image" :alt="car.alt" class="w-28 h-28 object-cover" mode="aspectFill"></image>
+        <view class="flex-1 p-3">
+          <view class="flex justify-between">
+            <text class="font-semibold">{{ car.name }}</text>
+            <view class="flex items-center">
+              <text class="fa fa-star text-secondary text-xs mr-1"></text>
+              <text class="text-sm">{{ car.rating }}</text>
+            </view>
+          </view>
+          <text class="text-neutral-light text-xs mt-1">{{ car.specs }}</text>
+          <view class="flex items-center mt-2 text-xs text-neutral-light">
+            <view class="flex items-center mr-3">
+              <text class="fa fa-check-circle text-success mr-1"></text>
+              <text>{{ car.feature1 }}</text>
+            </view>
+            <view class="flex items-center">
+              <text class="fa fa-check-circle text-success mr-1"></text>
+              <text>{{ car.feature2 }}</text>
+            </view>
+          </view>
+          <view class="mt-2 flex justify-between items-end">
+            <view>
+              <text class="text-primary font-bold">¥{{ car.price }}</text>
+              <text class="text-neutral-light text-xs">/天</text>
+            </view>
+            <button class="bg-primary text-white text-xs px-2 py-1 rounded-full">
+              查看详情
+            </button>
+          </view>
+        </view>
+      </view>
+
+      <!-- 加载更多 - 完全匹配HTML设计 -->
+      <view class="flex justify-center py-6" v-if="hasMore">
+        <button class="border border-primary text-primary px-6 py-2 rounded-full text-sm flex items-center" @click="loadMore">
+          <text v-if="!loading">加载更多</text>
+          <text v-else>加载中...</text>
+          <text class="fa fa-angle-down ml-1"></text>
+        </button>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      searchKeyword: '',
+      viewMode: 'list',
+      loading: false,
+      hasMore: true,
+      page: 1,
+      pageSize: 10,
+      activeFilter: 'all', // 当前选中的筛选项
+      // 车辆列表数据 - 完全匹配HTML设计
+      carList: [
+        {
+          _id: 'car001',
+          name: '奔驰S级',
+          image: 'https://picsum.photos/300/300?random=20',
+          alt: '奔驰S级婚车',
+          rating: 4.9,
+          specs: '黑色 / 5座 / 自动',
+          price: 2800,
+          feature1: '免费装饰',
+          feature2: '送花车'
+        },
+        {
+          _id: 'car002',
+          name: '宝马7系',
+          image: 'https://picsum.photos/300/300?random=21',
+          alt: '宝马7系婚车',
+          rating: 4.8,
+          specs: '黑色 / 5座 / 自动',
+          price: 2500,
+          feature1: '免费装饰',
+          feature2: '送花车'
+        },
+        {
+          _id: 'car003',
+          name: '奥迪A8',
+          image: 'https://picsum.photos/300/300?random=22',
+          alt: '奥迪A8婚车',
+          rating: 4.7,
+          specs: '黑色 / 5座 / 自动',
+          price: 2200,
+          feature1: '免费装饰',
+          feature2: '送花车'
+        },
+        {
+          _id: 'car004',
+          name: '保时捷Panamera',
+          image: 'https://picsum.photos/300/300?random=23',
+          alt: '保时捷婚车',
+          rating: 4.9,
+          specs: '白色 / 4座 / 自动',
+          price: 5800,
+          feature1: '豪华装饰',
+          feature2: '送花车'
+        },
+        {
+          _id: 'car005',
+          name: '宾利飞驰',
+          image: 'https://picsum.photos/300/300?random=24',
+          alt: '宾利婚车',
+          rating: 5.0,
+          specs: '黑色 / 5座 / 自动',
+          price: 12800,
+          feature1: '高级装饰',
+          feature2: '专属司机'
+        }
+      ]
+    }
+  },
+  onLoad() {
+    // 检查是否从首页传递了筛选条件
+    const filter = uni.getStorageSync('searchFilter');
+    if (filter) {
+      this.activeFilter = filter;
+      uni.removeStorageSync('searchFilter');
+    }
+  },
+  methods: {
+    // 处理搜索输入
+    handleSearch() {
+      // 实现搜索逻辑
+      console.log('搜索关键词:', this.searchKeyword);
+      // 这里可以调用API进行搜索
+    },
+    
+    // 设置活动筛选项 - 匹配HTML功能
+    setActiveFilter(filter) {
+      this.activeFilter = filter;
+      // 根据筛选条件过滤车辆列表
+      this.filterCars(filter);
+    },
+    
+    // 筛选车辆功能 - 匹配HTML功能
+    filterCars(category) {
+      console.log('筛选车辆类别:', category);
+      // 在实际应用中，这里会根据类别筛选车辆列表
+      // 可以调用API获取筛选后的数据
+    },
+    
+    // 加载更多
+    loadMore() {
+      if (this.hasMore && !this.loading) {
+        this.loading = true;
+        // 模拟加载延迟
+        setTimeout(() => {
+          // 这里可以加载更多数据
+          this.loading = false;
+          // 如果没有更多数据了
+          // this.hasMore = false;
+        }, 1000);
+      }
+    },
+    
+    // 跳转车辆详情
+    goToCarDetail(car) {
+      uni.navigateTo({
+        url: `/pages/car-detail/car-detail?id=${car._id}`
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+/* 页面特定样式 - 使用全局Tailwind CSS类，只定义特殊需求 */
+
+/* 确保图标字体正确显示 */
+.fa {
+  font-family: 'FontAwesome' !important;
+}
+
+/* 触摸反馈效果 - 匹配HTML设计 */
+.btn-hover:active {
+        transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(183, 110, 121, 0.3);
+}
+
+/* 搜索输入框焦点状态 */
+input:focus {
+  outline: none;
+  border-color: rgba(183, 110, 121, 0.3);
+  box-shadow: 0 0 0 2px rgba(183, 110, 121, 0.1);
+}
+
+/* 状态栏适配 */
+page {
+  background-color: #F9F9F9;
+}
+</style>
+

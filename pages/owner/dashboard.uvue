@@ -1,0 +1,593 @@
+<template>
+  <view class="owner-dashboard">
+    <!-- 头部信息 -->
+    <view class="header-section" :style="{ paddingTop: statusBarHeight + 'px' }">
+      <view class="header-content">
+        <view class="owner-info">
+          <image class="owner-avatar" :src="ownerInfo.avatar" mode="aspectFill"></image>
+          <view class="owner-details">
+            <text class="owner-name">{{ ownerInfo.nickname }}</text>
+            <view class="owner-badge">
+              <text class="badge-text">认证车主</text>
+            </view>
+          </view>
+        </view>
+        <view class="settings-btn" @click="goToSettings">
+          <text class="fa fa-cog"></text>
+        </view>
+      </view>
+      
+      <!-- 收入统计 -->
+      <view class="income-stats">
+        <view class="stat-item">
+          <text class="stat-number">¥{{ ownerStats.todayIncome }}</text>
+          <text class="stat-label">今日收入</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">¥{{ ownerStats.monthIncome }}</text>
+          <text class="stat-label">本月收入</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{ ownerStats.totalOrders }}</text>
+          <text class="stat-label">总订单</text>
+        </view>
+      </view>
+    </view>
+
+    <scroll-view class="content-scroll" scroll-y>
+      <!-- 收入图表 -->
+      <view class="chart-section">
+        <view class="section-header">
+          <text class="section-title">收入趋势</text>
+          <picker :value="chartPeriod" :range="['本周', '本月', '本年']" @change="onChartPeriodChange">
+            <view class="period-picker">
+              <text class="picker-text">{{ ['本周', '本月', '本年'][chartPeriod] }}</text>
+              <text class="fa fa-chevron-down"></text>
+            </view>
+          </picker>
+        </view>
+        <view class="chart-container">
+          <view class="chart-placeholder">
+            <text class="chart-text">收入图表区域</text>
+            <text class="chart-desc">这里将显示收入趋势图</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 快捷功能 -->
+      <view class="quick-functions">
+        <view class="function-grid">
+          <view class="function-item" @click="goToCarManage">
+            <view class="function-icon">
+              <text class="fa fa-car"></text>
+            </view>
+            <text class="function-text">车辆管理</text>
+          </view>
+          <view class="function-item" @click="goToOrderManage">
+            <view class="function-icon">
+              <text class="fa fa-list-alt"></text>
+              <view class="notification-badge" v-if="pendingOrders > 0">{{ pendingOrders }}</view>
+            </view>
+            <text class="function-text">订单管理</text>
+          </view>
+          <view class="function-item" @click="goToIncome">
+            <view class="function-icon">
+              <text class="fa fa-line-chart"></text>
+            </view>
+            <text class="function-text">收入统计</text>
+          </view>
+          <view class="function-item" @click="goToWithdraw">
+            <view class="function-icon">
+              <text class="fa fa-credit-card"></text>
+            </view>
+            <text class="function-text">提现</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 最近订单 -->
+      <view class="recent-orders">
+        <view class="section-header">
+          <text class="section-title">最近订单</text>
+          <text class="more-link" @click="goToOrderManage">查看全部</text>
+        </view>
+        <view class="order-list">
+          <view class="order-item" 
+                v-for="order in recentOrders" 
+                :key="order._id"
+                @click="goToOrderDetail(order)">
+            <view class="order-info">
+              <text class="order-title">{{ order.car.brand }} {{ order.car.model }}</text>
+              <text class="order-time">{{ order.service_date }} {{ order.service_time }}</text>
+              <text class="order-location">{{ order.pickup_location }}</text>
+            </view>
+            <view class="order-right">
+              <text class="order-amount">¥{{ order.owner_amount || order.total_amount }}</text>
+              <text class="order-status" :class="getOrderStatusClass(order.status)">
+                {{ getOrderStatusText(order.status) }}
+              </text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 车主工具 -->
+      <view class="owner-tools">
+        <view class="section-title">
+          <text class="title-text">车主工具</text>
+        </view>
+        <view class="tool-list">
+          <view class="tool-item" @click="goToProfile">
+            <text class="fa fa-user tool-icon"></text>
+            <text class="tool-text">个人资料</text>
+            <text class="fa fa-chevron-right tool-arrow"></text>
+          </view>
+          <view class="tool-item" @click="goToReviews">
+            <text class="fa fa-star tool-icon"></text>
+            <text class="tool-text">用户评价</text>
+            <text class="fa fa-chevron-right tool-arrow"></text>
+          </view>
+          <view class="tool-item" @click="goToHelp">
+            <text class="fa fa-question-circle tool-icon"></text>
+            <text class="tool-text">帮助中心</text>
+            <text class="fa fa-chevron-right tool-arrow"></text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      statusBarHeight: 0,
+      chartPeriod: 0,
+      pendingOrders: 3,
+      ownerInfo: {
+        nickname: '王师傅',
+        avatar: '/static/avatar/owner1.jpg'
+      },
+      ownerStats: {
+        todayIncome: 1200,
+        monthIncome: 15600,
+        totalOrders: 156
+      },
+      recentOrders: []
+    }
+  },
+  onLoad() {
+    this.getStatusBarHeight();
+    this.loadRecentOrders();
+  },
+  methods: {
+    getStatusBarHeight() {
+      const systemInfo = uni.getSystemInfoSync();
+      this.statusBarHeight = systemInfo.statusBarHeight || 0;
+    },
+    loadRecentOrders() {
+      // 模拟最近订单数据
+      this.recentOrders = [
+        {
+          _id: 'order001',
+          car: { brand: '劳斯莱斯', model: '幻影' },
+          service_date: '2025-02-14',
+          service_time: '09:00',
+          pickup_location: '朝阳区三里屯',
+          total_amount: 4000,
+          owner_amount: 3800,
+          status: 1
+        },
+        {
+          _id: 'order002',
+          car: { brand: '奔驰', model: 'S级' },
+          service_date: '2025-01-20',
+          service_time: '14:00',
+          pickup_location: '海淀区中关村',
+          total_amount: 2400,
+          owner_amount: 2280,
+          status: 2
+        }
+      ];
+    },
+    onChartPeriodChange(e) {
+      this.chartPeriod = e.detail.value;
+    },
+    getOrderStatusClass(status) {
+      const classMap = {
+        1: 'pending',
+        2: 'confirmed',
+        3: 'ongoing',
+        4: 'completed'
+      };
+      return classMap[status] || '';
+    },
+    getOrderStatusText(status) {
+      const textMap = {
+        1: '待确认',
+        2: '已确认',
+        3: '进行中',
+        4: '已完成'
+      };
+      return textMap[status] || '';
+    },
+    goToSettings() {
+      uni.navigateTo({
+        url: '/pages/owner/settings'
+      });
+    },
+    goToCarManage() {
+      uni.navigateTo({
+        url: '/pages/owner/car-manage'
+      });
+    },
+    goToOrderManage() {
+      uni.navigateTo({
+        url: '/pages/owner/order-manage'
+      });
+    },
+    goToIncome() {
+      uni.navigateTo({
+        url: '/pages/owner/income'
+      });
+    },
+    goToWithdraw() {
+      uni.navigateTo({
+        url: '/pages/owner/withdraw'
+      });
+    },
+    goToOrderDetail(order) {
+      uni.navigateTo({
+        url: `/pages/order-detail/order-detail?id=${order._id}`
+      });
+    },
+    goToProfile() {
+      uni.navigateTo({
+        url: '/pages/owner/profile'
+      });
+    },
+    goToReviews() {
+      uni.navigateTo({
+        url: '/pages/owner/reviews'
+      });
+    },
+    goToHelp() {
+      uni.navigateTo({
+        url: '/pages/help/help'
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.owner-dashboard {
+  background-color: $uni-bg-color-grey;
+  min-height: 100vh;
+}
+
+.header-section {
+  background: linear-gradient(135deg, $uni-color-primary 0%, rgba($uni-color-primary, 0.8) 100%);
+  padding: 20px 16px;
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    
+    .owner-info {
+      display: flex;
+      align-items: center;
+      
+      .owner-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 2px solid white;
+        margin-right: 16px;
+      }
+      
+      .owner-details {
+        .owner-name {
+          font-size: 18px;
+          font-weight: bold;
+          color: white;
+          display: block;
+          margin-bottom: 4px;
+        }
+        
+        .owner-badge {
+          .badge-text {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+          }
+        }
+      }
+    }
+    
+    .settings-btn {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+  }
+  
+  .income-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    
+    .stat-item {
+      text-align: center;
+      
+      .stat-number {
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        display: block;
+        margin-bottom: 4px;
+      }
+      
+      .stat-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+}
+
+.content-scroll {
+  padding-top: 12px;
+}
+
+.chart-section, .quick-functions, .recent-orders, .owner-tools {
+  background: white;
+  margin-bottom: 12px;
+  padding: 20px;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: $uni-text-color;
+    }
+    
+    .more-link {
+      font-size: 14px;
+      color: $uni-color-primary;
+    }
+    
+    .period-picker {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: $uni-text-color;
+      
+      .fa-chevron-down {
+        margin-left: 4px;
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: $uni-text-color;
+    margin-bottom: 16px;
+    
+    .title-text {
+      font-size: 16px;
+      font-weight: bold;
+      color: $uni-text-color;
+    }
+  }
+}
+
+.chart-container {
+  .chart-placeholder {
+    height: 200px;
+    background: $uni-bg-color-light;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    .chart-text {
+      font-size: 16px;
+      color: $uni-text-color-grey;
+      margin-bottom: 8px;
+    }
+    
+    .chart-desc {
+      font-size: 12px;
+      color: $uni-text-color-grey;
+    }
+  }
+}
+
+.function-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  
+  .function-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 8px;
+    border-radius: 8px;
+    
+    &:active {
+      background-color: $uni-bg-color-light;
+    }
+    
+    .function-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba($uni-color-primary, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      position: relative;
+      
+      .fa {
+        color: $uni-color-primary;
+        font-size: 20px;
+      }
+      
+      .notification-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: $uni-color-error;
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        min-width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+    
+    .function-text {
+      font-size: 12px;
+      color: $uni-text-color;
+      text-align: center;
+    }
+  }
+}
+
+.order-list {
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid $uni-border-color-light;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .order-info {
+      flex: 1;
+      
+      .order-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: $uni-text-color;
+        display: block;
+        margin-bottom: 4px;
+      }
+      
+      .order-time {
+        font-size: 12px;
+        color: $uni-text-color-grey;
+        display: block;
+        margin-bottom: 4px;
+      }
+      
+      .order-location {
+        font-size: 12px;
+        color: $uni-text-color-grey;
+      }
+    }
+    
+    .order-right {
+      text-align: right;
+      
+      .order-amount {
+        font-size: 16px;
+        font-weight: bold;
+        color: $uni-color-primary;
+        display: block;
+        margin-bottom: 4px;
+      }
+      
+      .order-status {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        
+        &.pending {
+          background: rgba($uni-color-secondary, 0.1);
+          color: $uni-color-secondary;
+        }
+        
+        &.confirmed {
+          background: rgba($uni-color-primary, 0.1);
+          color: $uni-color-primary;
+        }
+        
+        &.ongoing {
+          background: rgba($uni-color-warning, 0.1);
+          color: $uni-color-warning;
+        }
+        
+        &.completed {
+          background: rgba($uni-color-success, 0.1);
+          color: $uni-color-success;
+        }
+      }
+    }
+  }
+}
+
+.tool-list {
+  .tool-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid $uni-border-color-light;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &:active {
+      background-color: $uni-bg-color-hover;
+    }
+    
+    .tool-icon {
+      color: $uni-color-primary;
+      font-size: 18px;
+      width: 24px;
+      margin-right: 16px;
+    }
+    
+    .tool-text {
+      flex: 1;
+      font-size: 14px;
+      color: $uni-text-color;
+    }
+    
+    .tool-arrow {
+      color: $uni-text-color-grey;
+      font-size: 14px;
+    }
+  }
+}
+</style>

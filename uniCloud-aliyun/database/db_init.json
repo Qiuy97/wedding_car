@@ -1,0 +1,135 @@
+{
+  "users": {
+    "data": [
+      {
+        "_id": "user001",
+        "openid": "test_openid_001",
+        "user_type": 1,
+        "phone": "13800138001",
+        "avatar": "/static/avatar/user1.jpg",
+        "nickname": "小明",
+        "real_name": "张小明",
+        "id_card": "110101199001011234",
+        "driver_license": "",
+        "status": 1,
+        "create_time": "2025-01-01T00:00:00.000Z"
+      },
+      {
+        "_id": "owner001",
+        "openid": "test_openid_002",
+        "user_type": 2,
+        "phone": "13800138002",
+        "avatar": "/static/avatar/owner1.jpg",
+        "nickname": "老王",
+        "real_name": "王师傅",
+        "id_card": "110101198001011234",
+        "driver_license": "110101198001011234",
+        "status": 1,
+        "create_time": "2025-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  "cars": {
+    "data": [
+      {
+        "_id": "car001",
+        "owner_id": "owner001",
+        "brand": "劳斯莱斯",
+        "model": "幻影",
+        "color": "珍珠白",
+        "year": "2023",
+        "seats": 4,
+        "images": [
+          "/static/cars/rolls1.jpg",
+          "/static/cars/rolls2.jpg",
+          "/static/cars/rolls3.jpg"
+        ],
+        "price_per_hour": 2000,
+        "service_area": "北京市朝阳区",
+        "status": 1,
+        "rating": 4.9,
+        "order_count": 156,
+        "features": ["GPS导航", "车载WiFi", "豪华内饰", "专业司机"],
+        "description": "顶级豪华婚车，为您的重要时刻增添尊贵气质",
+        "create_time": "2025-01-01T00:00:00.000Z"
+      },
+      {
+        "_id": "car002",
+        "owner_id": "owner001",
+        "brand": "奔驰",
+        "model": "S级",
+        "color": "香槟金",
+        "year": "2024",
+        "seats": 5,
+        "images": [
+          "/static/cars/benz1.jpg",
+          "/static/cars/benz2.jpg"
+        ],
+        "price_per_hour": 800,
+        "service_area": "北京市海淀区",
+        "status": 1,
+        "rating": 4.8,
+        "order_count": 89,
+        "features": ["GPS导航", "车载WiFi", "真皮座椅"],
+        "description": "经典豪华轿车，舒适优雅的婚车选择",
+        "create_time": "2025-01-01T00:00:00.000Z"
+      },
+      {
+        "_id": "car003",
+        "owner_id": "owner001",
+        "brand": "宝马",
+        "model": "7系",
+        "color": "黑色",
+        "year": "2023",
+        "seats": 5,
+        "images": [
+          "/static/cars/bmw1.jpg",
+          "/static/cars/bmw2.jpg"
+        ],
+        "price_per_hour": 600,
+        "service_area": "北京市西城区",
+        "status": 1,
+        "rating": 4.7,
+        "order_count": 124,
+        "features": ["GPS导航", "真皮座椅", "天窗"],
+        "description": "商务豪华轿车，稳重大气的婚车之选",
+        "create_time": "2025-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  "orders": {
+    "data": [
+      {
+        "_id": "order001",
+        "user_id": "user001",
+        "car_id": "car001",
+        "owner_id": "owner001",
+        "service_date": "2025-02-14",
+        "service_time": "09:00",
+        "pickup_location": "北京市朝阳区三里屯",
+        "dropoff_location": "北京市朝阳区国贸",
+        "total_amount": 4000,
+        "platform_fee": 200,
+        "owner_amount": 3800,
+        "status": 2,
+        "special_requirements": "需要红色装饰",
+        "create_time": "2025-01-15T10:30:00.000Z"
+      }
+    ]
+  },
+  "reviews": {
+    "data": [
+      {
+        "_id": "review001",
+        "order_id": "order001",
+        "user_id": "user001",
+        "car_id": "car001",
+        "owner_id": "owner001",
+        "rating": 5,
+        "comment": "服务非常好，车辆很豪华，司机很专业！",
+        "images": ["/static/reviews/review1.jpg"],
+        "create_time": "2025-01-16T15:20:00.000Z"
+      }
+    ]
+  }
+}

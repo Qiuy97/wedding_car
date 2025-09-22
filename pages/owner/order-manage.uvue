@@ -1,0 +1,542 @@
+<template>
+  <view class="order-manage-page">
+    <!-- 状态标签 -->
+    <scroll-view class="status-tabs" scroll-x>
+      <view class="tabs-container">
+        <view class="tab-item" 
+              :class="{ active: activeTab === 'all' }"
+              @click="switchTab('all')">
+          全部
+        </view>
+        <view class="tab-item" 
+              :class="{ active: activeTab === 'pending' }"
+              @click="switchTab('pending')">
+          待确认
+          <view class="tab-badge" v-if="pendingCount > 0">{{ pendingCount }}</view>
+        </view>
+        <view class="tab-item" 
+              :class="{ active: activeTab === 'confirmed' }"
+              @click="switchTab('confirmed')">
+          已确认
+        </view>
+        <view class="tab-item" 
+              :class="{ active: activeTab === 'ongoing' }"
+              @click="switchTab('ongoing')">
+          进行中
+        </view>
+        <view class="tab-item" 
+              :class="{ active: activeTab === 'completed' }"
+              @click="switchTab('completed')">
+          已完成
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 订单列表 -->
+    <scroll-view class="order-list" scroll-y @scrolltolower="loadMore">
+      <view class="order-item" 
+            v-for="order in orderList" 
+            :key="order._id"
+            @click="goToOrderDetail(order)">
+        <view class="order-header">
+          <text class="order-number">订单号：{{ order._id }}</text>
+          <text class="order-status" :class="getStatusClass(order.status)">
+            {{ getStatusText(order.status) }}
+          </text>
+        </view>
+        
+        <view class="order-content">
+          <image class="car-image" :src="order.car.images[0]" mode="aspectFill"></image>
+          <view class="order-info">
+            <text class="car-name">{{ order.car.brand }} {{ order.car.model }}</text>
+            <text class="customer-name">客户：{{ order.user.nickname }}</text>
+            <text class="service-time">{{ order.service_date }} {{ order.service_time }}</text>
+            <text class="service-location">{{ order.pickup_location }}</text>
+            <view class="order-price">
+              <text class="price-text">¥{{ order.owner_amount || order.total_amount }}</text>
+              <text class="price-note">(已扣除手续费)</text>
+            </view>
+          </view>
+        </view>
+        
+        <view class="order-actions" v-if="order.status !== 4 && order.status !== 5">
+          <view class="action-btn secondary" @click.stop="contactCustomer(order)">
+            联系客户
+          </view>
+          <view class="action-btn secondary" 
+                v-if="order.status === 1"
+                @click.stop="rejectOrder(order)">
+            拒绝
+          </view>
+          <view class="action-btn primary" 
+                v-if="order.status === 1"
+                @click.stop="confirmOrder(order)">
+            确认接单
+          </view>
+          <view class="action-btn primary" 
+                v-if="order.status === 2"
+                @click.stop="startService(order)">
+            开始服务
+          </view>
+          <view class="action-btn primary" 
+                v-if="order.status === 3"
+                @click.stop="completeService(order)">
+            完成服务
+          </view>
+        </view>
+      </view>
+      
+      <!-- 空状态 -->
+      <view class="empty-state" v-if="orderList.length === 0 && !loading">
+        <text class="fa fa-list-alt empty-icon"></text>
+        <text class="empty-text">暂无订单</text>
+      </view>
+      
+      <!-- 加载更多 -->
+      <view class="load-more" v-if="hasMore">
+        <text v-if="loading">加载中...</text>
+        <text v-else @click="loadMore">加载更多</text>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      activeTab: 'pending',
+      orderList: [],
+      loading: false,
+      hasMore: true,
+      page: 1,
+      pendingCount: 3
+    }
+  },
+  onLoad() {
+    this.loadOrderList();
+  },
+  onShow() {
+    this.refreshOrderList();
+  },
+  methods: {
+    switchTab(tab) {
+      this.activeTab = tab;
+      this.refreshOrderList();
+    },
+    async loadOrderList(refresh = false) {
+      if (this.loading) return;
+      
+      this.loading = true;
+      
+      if (refresh) {
+        this.page = 1;
+        this.orderList = [];
+      }
+      
+      try {
+        // 模拟订单数据
+        const mockOrders = [
+          {
+            _id: 'ORDER20250101001',
+            car: {
+              brand: '劳斯莱斯',
+              model: '幻影',
+              images: ['/static/cars/rolls1.jpg']
+            },
+            user: {
+              nickname: '张小明'
+            },
+            service_date: '2025-02-14',
+            service_time: '09:00',
+            pickup_location: '北京市朝阳区三里屯',
+            total_amount: 4000,
+            owner_amount: 3800,
+            status: 1,
+            create_time: '2025-01-15T10:30:00.000Z'
+          },
+          {
+            _id: 'ORDER20250101002',
+            car: {
+              brand: '奔驰',
+              model: 'S级',
+              images: ['/static/cars/benz1.jpg']
+            },
+            user: {
+              nickname: '李小红'
+            },
+            service_date: '2025-01-25',
+            service_time: '14:00',
+            pickup_location: '北京市海淀区中关村',
+            total_amount: 2400,
+            owner_amount: 2280,
+            status: 2,
+            create_time: '2025-01-10T14:20:00.000Z'
+          }
+        ];
+        
+        // 根据状态筛选
+        let filteredOrders = mockOrders;
+        if (this.activeTab !== 'all') {
+          const statusMap = {
+            'pending': 1,
+            'confirmed': 2,
+            'ongoing': 3,
+            'completed': 4
+          };
+          filteredOrders = mockOrders.filter(order => 
+            order.status === statusMap[this.activeTab]
+          );
+        }
+        
+        if (refresh) {
+          this.orderList = filteredOrders;
+        } else {
+          this.orderList = [...this.orderList, ...filteredOrders];
+        }
+        
+        this.hasMore = filteredOrders.length === 10;
+        this.page++;
+        
+      } catch (error) {
+        console.error('加载订单列表失败:', error);
+        uni.showToast({
+          title: '加载失败',
+          icon: 'none'
+        });
+      }
+      
+      this.loading = false;
+    },
+    refreshOrderList() {
+      this.loadOrderList(true);
+    },
+    loadMore() {
+      if (this.hasMore && !this.loading) {
+        this.loadOrderList();
+      }
+    },
+    getStatusClass(status) {
+      const classMap = {
+        1: 'pending',
+        2: 'confirmed',
+        3: 'ongoing',
+        4: 'completed',
+        5: 'cancelled'
+      };
+      return classMap[status] || '';
+    },
+    getStatusText(status) {
+      const textMap = {
+        1: '待确认',
+        2: '已确认',
+        3: '进行中',
+        4: '已完成',
+        5: '已取消'
+      };
+      return textMap[status] || '';
+    },
+    goToOrderDetail(order) {
+      uni.navigateTo({
+        url: `/pages/order-detail/order-detail?id=${order._id}`
+      });
+    },
+    contactCustomer(order) {
+      uni.showModal({
+        title: '联系客户',
+        content: '是否拨打客户电话？',
+        success: (res) => {
+          if (res.confirm) {
+            uni.makePhoneCall({
+              phoneNumber: '13800138001'
+            });
+          }
+        }
+      });
+    },
+    confirmOrder(order) {
+      uni.showModal({
+        title: '确认接单',
+        content: '确定要接受这个订单吗？',
+        success: (res) => {
+          if (res.confirm) {
+            order.status = 2;
+            this.pendingCount = Math.max(0, this.pendingCount - 1);
+            uni.showToast({
+              title: '已确认接单',
+              icon: 'success'
+            });
+          }
+        }
+      });
+    },
+    rejectOrder(order) {
+      uni.showModal({
+        title: '拒绝订单',
+        content: '确定要拒绝这个订单吗？',
+        success: (res) => {
+          if (res.confirm) {
+            const index = this.orderList.findIndex(item => item._id === order._id);
+            if (index > -1) {
+              this.orderList.splice(index, 1);
+            }
+            this.pendingCount = Math.max(0, this.pendingCount - 1);
+            uni.showToast({
+              title: '已拒绝订单',
+              icon: 'success'
+            });
+          }
+        }
+      });
+    },
+    startService(order) {
+      order.status = 3;
+      uni.showToast({
+        title: '服务已开始',
+        icon: 'success'
+      });
+    },
+    completeService(order) {
+      uni.showModal({
+        title: '完成服务',
+        content: '确定服务已完成吗？完成后将等待客户确认。',
+        success: (res) => {
+          if (res.confirm) {
+            order.status = 4;
+            uni.showToast({
+              title: '服务已完成',
+              icon: 'success'
+            });
+          }
+        }
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.order-manage-page {
+  background-color: $uni-bg-color-grey;
+  min-height: 100vh;
+}
+
+.status-tabs {
+  background: white;
+  border-bottom: 1px solid $uni-border-color-light;
+  
+  .tabs-container {
+    display: flex;
+    padding: 0 16px;
+    
+    .tab-item {
+      white-space: nowrap;
+      padding: 16px 20px;
+      font-size: 14px;
+      color: $uni-text-color-grey;
+      position: relative;
+      
+      &.active {
+        color: $uni-color-primary;
+        font-weight: 500;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 20px;
+          height: 2px;
+          background: $uni-color-primary;
+          border-radius: 1px;
+        }
+      }
+      
+      .tab-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: $uni-color-error;
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        min-width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.order-list {
+  flex: 1;
+  padding: 12px 16px;
+  
+  .order-item {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid $uni-border-color-light;
+      
+      .order-number {
+        font-size: 12px;
+        color: $uni-text-color-grey;
+      }
+      
+      .order-status {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        
+        &.pending {
+          background: rgba($uni-color-secondary, 0.1);
+          color: $uni-color-secondary;
+        }
+        
+        &.confirmed {
+          background: rgba($uni-color-primary, 0.1);
+          color: $uni-color-primary;
+        }
+        
+        &.ongoing {
+          background: rgba($uni-color-warning, 0.1);
+          color: $uni-color-warning;
+        }
+        
+        &.completed {
+          background: rgba($uni-color-success, 0.1);
+          color: $uni-color-success;
+        }
+        
+        &.cancelled {
+          background: rgba($uni-color-error, 0.1);
+          color: $uni-color-error;
+        }
+      }
+    }
+    
+    .order-content {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      
+      .car-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        flex-shrink: 0;
+      }
+      
+      .order-info {
+        flex: 1;
+        
+        .car-name {
+          font-size: 16px;
+          font-weight: bold;
+          color: $uni-text-color;
+          display: block;
+          margin-bottom: 4px;
+        }
+        
+        .customer-name {
+          font-size: 12px;
+          color: $uni-text-color-grey;
+          display: block;
+          margin-bottom: 4px;
+        }
+        
+        .service-time {
+          font-size: 12px;
+          color: $uni-text-color-grey;
+          display: block;
+          margin-bottom: 4px;
+        }
+        
+        .service-location {
+          font-size: 12px;
+          color: $uni-text-color-grey;
+          display: block;
+          margin-bottom: 8px;
+        }
+        
+        .order-price {
+          display: flex;
+          align-items: baseline;
+          
+          .price-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: $uni-color-primary;
+            margin-right: 4px;
+          }
+          
+          .price-note {
+            font-size: 10px;
+            color: $uni-text-color-grey;
+          }
+        }
+      }
+    }
+    
+    .order-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      
+      .action-btn {
+        padding: 6px 16px;
+        border-radius: 16px;
+        font-size: 12px;
+        
+        &.secondary {
+          border: 1px solid $uni-color-primary;
+          color: $uni-color-primary;
+          background: white;
+        }
+        
+        &.primary {
+          background: $uni-color-primary;
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .empty-icon {
+    font-size: 48px;
+    color: $uni-text-color-grey;
+    display: block;
+    margin-bottom: 16px;
+  }
+  
+  .empty-text {
+    font-size: 14px;
+    color: $uni-text-color-grey;
+  }
+}
+
+.load-more {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: $uni-text-color-grey;
+}
+</style>

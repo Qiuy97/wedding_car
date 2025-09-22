@@ -1,0 +1,474 @@
+<template>
+  <view class="car-add-page">
+    <scroll-view class="content-scroll" scroll-y>
+      <!-- 车辆图片 -->
+      <view class="image-section">
+        <view class="section-title">
+          <text class="title-text">车辆图片</text>
+          <text class="title-desc">最多上传6张图片</text>
+        </view>
+        <view class="image-upload">
+          <view class="image-item" v-for="(image, index) in carImages" :key="index">
+            <image class="car-image" :src="image" mode="aspectFill"></image>
+            <view class="image-delete" @click="removeImage(index)">
+              <text class="fa fa-times"></text>
+            </view>
+          </view>
+          <view class="image-add" v-if="carImages.length < 6" @click="addImage">
+            <text class="fa fa-plus add-icon"></text>
+            <text class="add-text">添加图片</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 基本信息 -->
+      <view class="basic-section">
+        <view class="section-title">
+          <text class="title-text">基本信息</text>
+        </view>
+        <view class="form-group">
+          <text class="form-label">车辆品牌</text>
+          <picker :value="brandIndex" :range="brands" @change="onBrandChange">
+            <view class="form-input">
+              <text class="input-text" :class="{ placeholder: brandIndex === -1 }">
+                {{ brandIndex !== -1 ? brands[brandIndex] : '请选择品牌' }}
+              </text>
+              <text class="fa fa-chevron-down input-arrow"></text>
+            </view>
+          </picker>
+        </view>
+        <view class="form-group">
+          <text class="form-label">车辆型号</text>
+          <input class="form-input" placeholder="请输入车辆型号" v-model="formData.model" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">车辆颜色</text>
+          <input class="form-input" placeholder="请输入车辆颜色" v-model="formData.color" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">生产年份</text>
+          <picker mode="date" fields="year" :value="formData.year" @change="onYearChange">
+            <view class="form-input">
+              <text class="input-text" :class="{ placeholder: !formData.year }">
+                {{ formData.year || '请选择年份' }}
+              </text>
+              <text class="fa fa-calendar input-arrow"></text>
+            </view>
+          </picker>
+        </view>
+        <view class="form-group">
+          <text class="form-label">座位数</text>
+          <picker :value="seatIndex" :range="seatOptions" @change="onSeatChange">
+            <view class="form-input">
+              <text class="input-text" :class="{ placeholder: seatIndex === -1 }">
+                {{ seatIndex !== -1 ? seatOptions[seatIndex] : '请选择座位数' }}
+              </text>
+              <text class="fa fa-chevron-down input-arrow"></text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 价格设置 -->
+      <view class="price-section">
+        <view class="section-title">
+          <text class="title-text">价格设置</text>
+        </view>
+        <view class="form-group">
+          <text class="form-label">每小时价格 (元)</text>
+          <input class="form-input" type="number" placeholder="请输入每小时价格" v-model="formData.price_per_hour" />
+        </view>
+        <view class="form-group">
+          <text class="form-label">最低服务时长</text>
+          <picker :value="minHourIndex" :range="minHourOptions" @change="onMinHourChange">
+            <view class="form-input">
+              <text class="input-text" :class="{ placeholder: minHourIndex === -1 }">
+                {{ minHourIndex !== -1 ? minHourOptions[minHourIndex] : '请选择最低时长' }}
+              </text>
+              <text class="fa fa-chevron-down input-arrow"></text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 服务区域 -->
+      <view class="area-section">
+        <view class="section-title">
+          <text class="title-text">服务区域</text>
+        </view>
+        <view class="form-group">
+          <text class="form-label">服务区域</text>
+          <input class="form-input" placeholder="请输入服务区域" v-model="formData.service_area" />
+        </view>
+      </view>
+
+      <!-- 车辆特色 -->
+      <view class="features-section">
+        <view class="section-title">
+          <text class="title-text">车辆特色</text>
+        </view>
+        <view class="features-grid">
+          <view class="feature-item" 
+                v-for="feature in availableFeatures" 
+                :key="feature"
+                :class="{ selected: selectedFeatures.includes(feature) }"
+                @click="toggleFeature(feature)">
+            <text class="feature-text">{{ feature }}</text>
+            <text class="fa" :class="selectedFeatures.includes(feature) ? 'fa-check-circle' : 'fa-circle-o'"></text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 车辆描述 -->
+      <view class="desc-section">
+        <view class="section-title">
+          <text class="title-text">车辆描述</text>
+        </view>
+        <textarea class="desc-input" 
+                  placeholder="请描述您的车辆特色、服务优势等"
+                  v-model="formData.description"
+                  maxlength="200"></textarea>
+      </view>
+    </scroll-view>
+
+    <!-- 底部操作栏 -->
+    <view class="bottom-actions">
+      <view class="submit-btn" @click="submitCar">
+        <text class="btn-text">提交审核</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      carImages: [],
+      brandIndex: -1,
+      brands: ['劳斯莱斯', '奔驰', '宝马', '奥迪', '林肯', '凯迪拉克', '雷克萨斯'],
+      seatIndex: -1,
+      seatOptions: ['2座', '4座', '5座', '6座', '7座', '8座'],
+      minHourIndex: -1,
+      minHourOptions: ['2小时', '3小时', '4小时', '6小时', '8小时'],
+      formData: {
+        brand: '',
+        model: '',
+        color: '',
+        year: '',
+        seats: '',
+        price_per_hour: '',
+        service_area: '',
+        description: ''
+      },
+      availableFeatures: [
+        'GPS导航', '车载WiFi', '真皮座椅', '天窗', '豪华内饰', 
+        '专业司机', '婚车装饰', '保险齐全', '24小时服务', '免费接送'
+      ],
+      selectedFeatures: []
+    }
+  },
+  methods: {
+    addImage() {
+      uni.chooseImage({
+        count: 6 - this.carImages.length,
+        success: (res) => {
+          this.carImages = [...this.carImages, ...res.tempFilePaths];
+        }
+      });
+    },
+    removeImage(index) {
+      this.carImages.splice(index, 1);
+    },
+    onBrandChange(e) {
+      this.brandIndex = e.detail.value;
+      this.formData.brand = this.brands[this.brandIndex];
+    },
+    onYearChange(e) {
+      this.formData.year = e.detail.value;
+    },
+    onSeatChange(e) {
+      this.seatIndex = e.detail.value;
+      this.formData.seats = parseInt(this.seatOptions[this.seatIndex]);
+    },
+    onMinHourChange(e) {
+      this.minHourIndex = e.detail.value;
+    },
+    toggleFeature(feature) {
+      const index = this.selectedFeatures.indexOf(feature);
+      if (index > -1) {
+        this.selectedFeatures.splice(index, 1);
+      } else {
+        this.selectedFeatures.push(feature);
+      }
+    },
+    validateForm() {
+      if (this.carImages.length === 0) {
+        uni.showToast({
+          title: '请至少上传一张车辆图片',
+          icon: 'none'
+        });
+        return false;
+      }
+      
+      if (!this.formData.brand) {
+        uni.showToast({
+          title: '请选择车辆品牌',
+          icon: 'none'
+        });
+        return false;
+      }
+      
+      if (!this.formData.model) {
+        uni.showToast({
+          title: '请输入车辆型号',
+          icon: 'none'
+        });
+        return false;
+      }
+      
+      if (!this.formData.price_per_hour) {
+        uni.showToast({
+          title: '请输入每小时价格',
+          icon: 'none'
+        });
+        return false;
+      }
+      
+      return true;
+    },
+    async submitCar() {
+      if (!this.validateForm()) {
+        return;
+      }
+      
+      uni.showLoading({
+        title: '提交中...'
+      });
+      
+      try {
+        // 这里应该调用云函数提交车辆信息
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        uni.hideLoading();
+        uni.showToast({
+          title: '提交成功，等待审核',
+          icon: 'success'
+        });
+        
+        setTimeout(() => {
+          uni.navigateBack();
+        }, 1500);
+        
+      } catch (error) {
+        uni.hideLoading();
+        uni.showToast({
+          title: '提交失败，请重试',
+          icon: 'none'
+        });
+      }
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.car-add-page {
+  background-color: $uni-bg-color-grey;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.content-scroll {
+  padding: 16px;
+}
+
+.image-section, .basic-section, .price-section, .area-section, .features-section, .desc-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 12px;
+  
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .title-text {
+      font-size: 16px;
+      font-weight: bold;
+      color: $uni-text-color;
+    }
+    
+    .title-desc {
+      font-size: 12px;
+      color: $uni-text-color-grey;
+    }
+  }
+}
+
+.image-upload {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  
+  .image-item {
+    position: relative;
+    aspect-ratio: 1;
+    
+    .car-image {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+    
+    .image-delete {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+    }
+  }
+  
+  .image-add {
+    aspect-ratio: 1;
+    border: 2px dashed $uni-border-color;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    .add-icon {
+      font-size: 24px;
+      color: $uni-text-color-grey;
+      margin-bottom: 4px;
+    }
+    
+    .add-text {
+      font-size: 12px;
+      color: $uni-text-color-grey;
+    }
+  }
+}
+
+.form-group {
+  margin-bottom: 16px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .form-label {
+    font-size: 14px;
+    color: $uni-text-color;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .form-input {
+    border: 1px solid $uni-border-color;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    .input-text {
+      flex: 1;
+      color: $uni-text-color;
+      
+      &.placeholder {
+        color: $uni-text-color-grey;
+      }
+    }
+    
+    .input-arrow {
+      color: $uni-text-color-grey;
+      font-size: 12px;
+    }
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  
+  .feature-item {
+    border: 1px solid $uni-border-color;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    &.selected {
+      border-color: $uni-color-primary;
+      background: rgba($uni-color-primary, 0.05);
+    }
+    
+    .feature-text {
+      font-size: 14px;
+      color: $uni-text-color;
+    }
+    
+    .fa-check-circle {
+      color: $uni-color-primary;
+    }
+    
+    .fa-circle-o {
+      color: $uni-text-color-grey;
+    }
+  }
+}
+
+.desc-input {
+  width: 100%;
+  min-height: 100px;
+  border: 1px solid $uni-border-color;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  color: $uni-text-color;
+  line-height: 1.5;
+  resize: none;
+}
+
+.bottom-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 16px;
+  border-top: 1px solid $uni-border-color-light;
+  
+  .submit-btn {
+    width: 100%;
+    height: 48px;
+    background: $uni-color-primary;
+    color: white;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .btn-text {
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+}
+</style>

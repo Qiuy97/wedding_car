@@ -1,0 +1,200 @@
+@import "../../uvue.wxss";
+:host{display:flex;flex-direction:column}
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 - 婚车宝主题色 */
+/* 扩展颜色 - 完全匹配HTML设计 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 间距系统 - 完全匹配Tailwind CSS */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+/* 阴影效果 */
+/* 自定义阴影 - 匹配HTML设计 */
+.car-add-page.data-v-fd53b458 {
+  background-color: #F9F9F9;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+.content-scroll.data-v-fd53b458 {
+  padding: 16px;
+}
+.image-section.data-v-fd53b458, .basic-section.data-v-fd53b458, .price-section.data-v-fd53b458, .area-section.data-v-fd53b458, .features-section.data-v-fd53b458, .desc-section.data-v-fd53b458 {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.image-section .section-title.data-v-fd53b458, .basic-section .section-title.data-v-fd53b458, .price-section .section-title.data-v-fd53b458, .area-section .section-title.data-v-fd53b458, .features-section .section-title.data-v-fd53b458, .desc-section .section-title.data-v-fd53b458 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.image-section .section-title .title-text.data-v-fd53b458, .basic-section .section-title .title-text.data-v-fd53b458, .price-section .section-title .title-text.data-v-fd53b458, .area-section .section-title .title-text.data-v-fd53b458, .features-section .section-title .title-text.data-v-fd53b458, .desc-section .section-title .title-text.data-v-fd53b458 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #2C3E50;
+}
+.image-section .section-title .title-desc.data-v-fd53b458, .basic-section .section-title .title-desc.data-v-fd53b458, .price-section .section-title .title-desc.data-v-fd53b458, .area-section .section-title .title-desc.data-v-fd53b458, .features-section .section-title .title-desc.data-v-fd53b458, .desc-section .section-title .title-desc.data-v-fd53b458 {
+  font-size: 12px;
+  color: #7F8C8D;
+}
+.image-upload.data-v-fd53b458 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.image-upload .image-item.data-v-fd53b458 {
+  position: relative;
+  aspect-ratio: 1;
+}
+.image-upload .image-item .car-image.data-v-fd53b458 {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+.image-upload .image-item .image-delete.data-v-fd53b458 {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+.image-upload .image-add.data-v-fd53b458 {
+  aspect-ratio: 1;
+  border: 2px dashed #e5e7eb;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.image-upload .image-add .add-icon.data-v-fd53b458 {
+  font-size: 24px;
+  color: #7F8C8D;
+  margin-bottom: 4px;
+}
+.image-upload .image-add .add-text.data-v-fd53b458 {
+  font-size: 12px;
+  color: #7F8C8D;
+}
+.form-group.data-v-fd53b458 {
+  margin-bottom: 16px;
+}
+.form-group.data-v-fd53b458:last-child {
+  margin-bottom: 0;
+}
+.form-group .form-label.data-v-fd53b458 {
+  font-size: 14px;
+  color: #2C3E50;
+  margin-bottom: 8px;
+  display: block;
+}
+.form-group .form-input.data-v-fd53b458 {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.form-group .form-input .input-text.data-v-fd53b458 {
+  flex: 1;
+  color: #2C3E50;
+}
+.form-group .form-input .input-text.placeholder.data-v-fd53b458 {
+  color: #7F8C8D;
+}
+.form-group .form-input .input-arrow.data-v-fd53b458 {
+  color: #7F8C8D;
+  font-size: 12px;
+}
+.features-grid.data-v-fd53b458 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.features-grid .feature-item.data-v-fd53b458 {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.features-grid .feature-item.selected.data-v-fd53b458 {
+  border-color: #B76E79;
+  background: rgba(183, 110, 121, 0.05);
+}
+.features-grid .feature-item .feature-text.data-v-fd53b458 {
+  font-size: 14px;
+  color: #2C3E50;
+}
+.features-grid .feature-item .fa-check-circle.data-v-fd53b458 {
+  color: #B76E79;
+}
+.features-grid .feature-item .fa-circle-o.data-v-fd53b458 {
+  color: #7F8C8D;
+}
+.desc-input.data-v-fd53b458 {
+  width: 100%;
+  min-height: 100px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  color: #2C3E50;
+  line-height: 1.5;
+  resize: none;
+}
+.bottom-actions.data-v-fd53b458 {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+.bottom-actions .submit-btn.data-v-fd53b458 {
+  width: 100%;
+  height: 48px;
+  background: #B76E79;
+  color: white;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bottom-actions .submit-btn .btn-text.data-v-fd53b458 {
+  font-size: 16px;
+  font-weight: 500;
+}

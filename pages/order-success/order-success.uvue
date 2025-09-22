@@ -1,0 +1,173 @@
+<template>
+  <view class="success-page">
+    <view class="success-content">
+      <!-- 成功图标 -->
+      <view class="success-icon">
+        <text class="fa fa-check"></text>
+      </view>
+      
+      <!-- 成功信息 -->
+      <text class="success-title">预订成功！</text>
+      <text class="success-desc">您的婚车预订已确认，请耐心等待车主联系</text>
+      
+      <!-- 订单摘要 -->
+      <view class="order-summary">
+        <view class="summary-item">
+          <text class="summary-label">订单号</text>
+          <text class="summary-value">{{ orderId }}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">支付金额</text>
+          <text class="summary-value">¥{{ paymentAmount }}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">服务时间</text>
+          <text class="summary-value">2025-02-14 09:00</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">车辆信息</text>
+          <text class="summary-value">劳斯莱斯 幻影</text>
+        </view>
+      </view>
+      
+      <!-- 操作按钮 -->
+      <view class="actions">
+        <view class="action-btn primary" @click="goToOrderDetail">
+          <text class="btn-text">查看订单详情</text>
+        </view>
+        <view class="action-btn secondary" @click="goToHome">
+          <text class="btn-text">返回首页</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      orderId: '',
+      paymentAmount: 0
+    }
+  },
+  onLoad(options) {
+    this.orderId = options.orderId || 'ORDER20250101001';
+    this.paymentAmount = options.amount || 4000;
+  },
+  methods: {
+    goToOrderDetail() {
+      uni.navigateTo({
+        url: `/pages/order-detail/order-detail?id=${this.orderId}`
+      });
+    },
+    goToHome() {
+      uni.switchTab({
+        url: '/pages/index/index'
+      });
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.success-page {
+  background: linear-gradient(135deg, $uni-color-primary 0%, rgba($uni-color-primary, 0.8) 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.success-content {
+  text-align: center;
+  
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba($uni-color-success, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    
+    .fa-check {
+      font-size: 32px;
+      color: $uni-color-success;
+    }
+  }
+  
+  .success-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .success-desc {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    display: block;
+    margin-bottom: 32px;
+  }
+  
+  .order-summary {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      
+      .summary-label {
+        font-size: 14px;
+        color: $uni-text-color-grey;
+      }
+      
+      .summary-value {
+        font-size: 14px;
+        color: $uni-text-color;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .action-btn {
+      height: 44px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      &.primary {
+        background: white;
+        color: $uni-color-primary;
+      }
+      
+      &.secondary {
+        border: 1px solid white;
+        color: white;
+        background: transparent;
+      }
+      
+      .btn-text {
+        font-size: 16px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+</style>

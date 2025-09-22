@@ -1,0 +1,61 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/search/search",
+    "pages/car-detail/car-detail",
+    "pages/booking/booking",
+    "pages/payment/payment",
+    "pages/order-success/order-success",
+    "pages/order-detail/order-detail",
+    "pages/order-list/order-list",
+    "pages/profile/profile",
+    "pages/favorites/favorites",
+    "pages/owner/dashboard",
+    "pages/owner/car-manage",
+    "pages/owner/car-add",
+    "pages/owner/order-manage"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "婚车宝",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#F9F9F9",
+    "backgroundColorTop": "#F9F9F9",
+    "backgroundColorBottom": "#F9F9F9"
+  },
+  "tabBar": {
+    "color": "#7F8C8D",
+    "selectedColor": "#B76E79",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "custom": true,
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/search/search",
+        "text": "车辆"
+      },
+      {
+        "pagePath": "pages/owner/dashboard",
+        "text": "车主"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于小程序位置接口的效果展示"
+    }
+  },
+  "requiredBackgroundModes": [
+    "location"
+  ],
+  "navigateToMiniProgramAppIdList": [],
+  "usingComponents": {}
+}

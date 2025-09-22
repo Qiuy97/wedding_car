@@ -1,0 +1,126 @@
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: row;
+  z-index: 50;
+}
+
+.tab-bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  color: #7F8C8D;
+  transition: color 0.2s ease;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.tab-bar-item.selected {
+  color: #B76E79;
+}
+
+.tab-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 2px;
+  display: block;
+  position: relative;
+}
+
+/* 首页图标 - 房子 */
+.icon-home {
+  border: 2px solid currentColor;
+  border-top: none;
+  width: 16px;
+  height: 12px;
+  margin: 6px auto 0;
+}
+.icon-home:before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -2px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 8px solid currentColor;
+}
+
+/* 车辆图标 - 方格 */
+.icon-car {
+  width: 18px;
+  height: 18px;
+  margin: 3px auto;
+  background: currentColor;
+  border-radius: 2px;
+}
+.icon-car:before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 1px;
+}
+
+/* 车主图标 - 圆形 */
+.icon-owner {
+  width: 18px;
+  height: 18px;
+  margin: 3px auto;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+/* 用户图标 - 实心圆 */
+.icon-user {
+  width: 16px;
+  height: 16px;
+  margin: 4px auto;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.tab-text {
+  font-size: 10px;
+  line-height: 14px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* FontAwesome 字体 */
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* FontAwesome 图标 */
+.fa {
+  font-family: 'FontAwesome' !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 图标映射 */
+.fa-home:before { content: "\f015"; }
+.fa-th-large:before { content: "\f009"; }
+.fa-user-o:before { content: "\f2c0"; }
+.fa-user:before { content: "\f007"; }
