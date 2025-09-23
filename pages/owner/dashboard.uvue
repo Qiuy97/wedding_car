@@ -3,14 +3,25 @@
     <!-- 头部信息 -->
     <view class="header-section" :style="{ paddingTop: statusBarHeight + 'px' }">
       <view class="header-content">
-        <view class="owner-info">
-          <image class="owner-avatar" :src="ownerInfo.avatar" mode="aspectFill"></image>
-          <view class="owner-details">
+        <!-- 头像在最左侧 -->
+        <image 
+          class="owner-avatar" 
+          :src="ownerInfo.avatar" 
+          mode="aspectFill"
+          @error="onAvatarError"
+        ></image>
+        
+        <!-- 用户信息区域 -->
+        <view class="user-info-area">
+          <!-- 名字和标签在上方 -->
+          <view class="name-badge-row">
             <text class="owner-name">{{ ownerInfo.nickname }}</text>
             <view class="owner-badge">
-              <text class="badge-text">认证车主</text>
+              <text class="badge-text">{{ ownerInfo.level }}</text>
             </view>
           </view>
+          <!-- 车主ID在下方 -->
+          <text class="owner-id">车主ID: {{ ownerInfo.ownerId }}</text>
         </view>
         <view class="settings-btn" @click="goToSettings">
           <text class="fa fa-cog"></text>
@@ -97,43 +108,25 @@
                 :key="order._id"
                 @click="goToOrderDetail(order)">
             <view class="order-info">
-              <text class="order-title">{{ order.car.brand }} {{ order.car.model }}</text>
+              <text class="order-title">订单号: {{ order.order_no }}</text>
+              <text class="order-car-customer">{{ order.car.brand }} {{ order.car.model }} / {{ order.customer_name }}</text>
               <text class="order-time">{{ order.service_date }} {{ order.service_time }}</text>
-              <text class="order-location">{{ order.pickup_location }}</text>
             </view>
             <view class="order-right">
               <text class="order-amount">¥{{ order.owner_amount || order.total_amount }}</text>
               <text class="order-status" :class="getOrderStatusClass(order.status)">
                 {{ getOrderStatusText(order.status) }}
               </text>
+              <view class="order-actions">
+                <button class="contact-btn" @click.stop="contactCustomer(order)">联系客户</button>
+                <button class="confirm-btn" v-if="order.status === 1" @click.stop="confirmOrder(order)">确认</button>
+                <button class="reject-btn" v-if="order.status === 1" @click.stop="rejectOrder(order)">拒绝</button>
+              </view>
             </view>
           </view>
         </view>
       </view>
 
-      <!-- 车主工具 -->
-      <view class="owner-tools">
-        <view class="section-title">
-          <text class="title-text">车主工具</text>
-        </view>
-        <view class="tool-list">
-          <view class="tool-item" @click="goToProfile">
-            <text class="fa fa-user tool-icon"></text>
-            <text class="tool-text">个人资料</text>
-            <text class="fa fa-chevron-right tool-arrow"></text>
-          </view>
-          <view class="tool-item" @click="goToReviews">
-            <text class="fa fa-star tool-icon"></text>
-            <text class="tool-text">用户评价</text>
-            <text class="fa fa-chevron-right tool-arrow"></text>
-          </view>
-          <view class="tool-item" @click="goToHelp">
-            <text class="fa fa-question-circle tool-icon"></text>
-            <text class="tool-text">帮助中心</text>
-            <text class="fa fa-chevron-right tool-arrow"></text>
-          </view>
-        </view>
-      </view>
     </scroll-view>
   </view>
 </template>
@@ -147,7 +140,9 @@ export default {
       pendingOrders: 3,
       ownerInfo: {
         nickname: '王师傅',
-        avatar: '/static/avatar/owner1.jpg'
+        avatar: 'https://picsum.photos/100/100?random=90',
+        level: '资深车主',
+        ownerId: '776543210'
       },
       ownerStats: {
         todayIncome: 1200,
@@ -166,28 +161,49 @@ export default {
       const systemInfo = uni.getSystemInfoSync();
       this.statusBarHeight = systemInfo.statusBarHeight || 0;
     },
+    onAvatarError() {
+      console.log('头像加载失败');
+      // 使用默认头像
+      this.ownerInfo.avatar = 'https://via.placeholder.com/100x100/cccccc/ffffff?text=头像';
+    },
     loadRecentOrders() {
       // 模拟最近订单数据
       this.recentOrders = [
         {
           _id: 'order001',
+          order_no: 'WC202501150001',
           car: { brand: '劳斯莱斯', model: '幻影' },
+          customer_name: '张先生',
           service_date: '2025-02-14',
           service_time: '09:00',
           pickup_location: '朝阳区三里屯',
           total_amount: 4000,
           owner_amount: 3800,
-          status: 1
+          status: 1 // 待确认
         },
         {
           _id: 'order002',
+          order_no: 'WC202501140002',
           car: { brand: '奔驰', model: 'S级' },
+          customer_name: '李先生',
           service_date: '2025-01-20',
           service_time: '14:00',
           pickup_location: '海淀区中关村',
           total_amount: 2400,
           owner_amount: 2280,
-          status: 2
+          status: 2 // 已确认
+        },
+        {
+          _id: 'order003',
+          order_no: 'WC202501130003',
+          car: { brand: '宝马', model: '7系' },
+          customer_name: '王女士',
+          service_date: '2025-01-18',
+          service_time: '16:30',
+          pickup_location: '朝阳区国贸',
+          total_amount: 2800,
+          owner_amount: 2660,
+          status: 1 // 待确认
         }
       ];
     },
@@ -242,21 +258,63 @@ export default {
         url: `/pages/order-detail/order-detail?id=${order._id}`
       });
     },
-    goToProfile() {
-      uni.navigateTo({
-        url: '/pages/owner/profile'
+    // 联系客户
+    contactCustomer(order) {
+      uni.showActionSheet({
+        itemList: ['拨打电话', '发送短信'],
+        success: (res) => {
+          if (res.tapIndex === 0) {
+            // 拨打电话
+            uni.makePhoneCall({
+              phoneNumber: '138****8888' // 实际应该从订单数据获取
+            });
+          } else if (res.tapIndex === 1) {
+            // 发送短信
+            uni.showToast({
+              title: '短信功能开发中',
+              icon: 'none'
+            });
+          }
+        }
       });
     },
-    goToReviews() {
-      uni.navigateTo({
-        url: '/pages/owner/reviews'
+    // 确认订单
+    confirmOrder(order) {
+      uni.showModal({
+        title: '确认订单',
+        content: `确认接受订单 ${order.order_no} 吗？`,
+        success: (res) => {
+          if (res.confirm) {
+            // 这里应该调用API确认订单
+            order.status = 2; // 更新为已确认状态
+            uni.showToast({
+              title: '订单已确认',
+              icon: 'success'
+            });
+          }
+        }
       });
     },
-    goToHelp() {
-      uni.navigateTo({
-        url: '/pages/help/help'
+    // 拒绝订单
+    rejectOrder(order) {
+      uni.showModal({
+        title: '拒绝订单',
+        content: `确认拒绝订单 ${order.order_no} 吗？`,
+        success: (res) => {
+          if (res.confirm) {
+            // 这里应该调用API拒绝订单
+            const index = this.recentOrders.findIndex(item => item._id === order._id);
+            if (index > -1) {
+              this.recentOrders.splice(index, 1); // 从列表中移除
+            }
+            uni.showToast({
+              title: '订单已拒绝',
+              icon: 'success'
+            });
+          }
+        }
       });
-    }
+    },
   }
 }
 </script>
@@ -269,47 +327,86 @@ export default {
 
 .header-section {
   background: linear-gradient(135deg, $uni-color-primary 0%, rgba($uni-color-primary, 0.8) 100%);
-  padding: 20px 16px;
+  padding: 20px 0; /* 移除左右内边距限制 */
   
   .header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
+    display: flex !important;
+    align-items: center !important; /* 强制整体垂直居中对齐 */
+    margin-bottom: 24px !important;
+    padding: 0 16px !important;
+    min-height: 64px !important;
+    box-sizing: border-box !important;
     
-    .owner-info {
-      display: flex;
-      align-items: center;
+    /* 头像在最左侧 */
+    .owner-avatar {
+      width: 64px !important;
+      height: 64px !important;
+      border-radius: 50%;
+      border: 2px solid white;
+      flex-shrink: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      object-fit: cover;
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      vertical-align: middle;
+    }
+    
+    /* 用户信息区域 - 与头像垂直居中对齐 */
+    .user-info-area {
+      flex: 1 !important;
+      margin-left: 16px !important;
+      margin-right: 56px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important; /* 内容垂直居中 */
+      height: 64px !important; /* 与头像高度一致 */
+      padding: 0 !important;
+      box-sizing: border-box !important;
       
-      .owner-avatar {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        border: 2px solid white;
-        margin-right: 16px;
-      }
-      
-      .owner-details {
+      /* 名字和标签行 */
+      .name-badge-row {
+        display: flex !important;
+        align-items: center !important;
+        margin-bottom: 4px !important;
+        margin-top: 0 !important;
+        padding: 0 !important;
+        
         .owner-name {
-          font-size: 18px;
-          font-weight: bold;
-          color: white;
-          display: block;
-          margin-bottom: 4px;
+          font-size: 18px !important;
+          font-weight: bold !important;
+          color: white !important;
+          margin-right: 8px !important;
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          padding: 0 !important;
+          line-height: 1.2 !important;
         }
         
         .owner-badge {
           .badge-text {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            font-size: 12px !important;
+            padding: 2px 8px !important;
+            border-radius: 10px !important;
+            margin: 0 !important;
+            line-height: 1 !important;
           }
         }
       }
+      
+      /* 车主ID */
+      .owner-id {
+        font-size: 13px !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1.2 !important;
+      }
     }
     
+    /* 设置按钮在最右侧 */
     .settings-btn {
       width: 40px;
       height: 40px;
@@ -320,6 +417,7 @@ export default {
       justify-content: center;
       color: white;
       font-size: 18px;
+      flex-shrink: 0;
     }
   }
   
@@ -351,16 +449,17 @@ export default {
   padding-top: 12px;
 }
 
-.chart-section, .quick-functions, .recent-orders, .owner-tools {
+.chart-section, .quick-functions, .recent-orders {
   background: white;
   margin-bottom: 12px;
-  padding: 20px;
+  padding: 20px 0; /* 移除左右内边距限制 */
   
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    padding: 0 20px; /* 给section-header添加左右内边距 */
     
     .section-title {
       font-size: 16px;
@@ -370,7 +469,8 @@ export default {
     
     .more-link {
       font-size: 14px;
-      color: $uni-color-primary;
+      color: #ff4d4f;
+      font-weight: 500;
     }
     
     .period-picker {
@@ -401,6 +501,8 @@ export default {
 }
 
 .chart-container {
+  padding: 0 20px; /* 给图表容器添加左右内边距 */
+  
   .chart-placeholder {
     height: 200px;
     background: $uni-bg-color-light;
@@ -427,6 +529,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  padding: 0 20px; /* 给功能网格添加左右内边距 */
   
   .function-item {
     display: flex;
@@ -481,11 +584,14 @@ export default {
 }
 
 .order-list {
+  padding: 0; /* 移除左右内边距限制，让内容可以到达屏幕边缘 */
+  
   .order-item {
+    position: relative; /* 为绝对定位提供参考 */
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 16px 0;
+    align-items: flex-start;
+    padding: 16px 20px 16px 20px; /* 左侧20px，右侧保持内边距但右侧内容会绝对定位 */
     border-bottom: 1px solid $uni-border-color-light;
     
     &:last-child {
@@ -494,100 +600,128 @@ export default {
     
     .order-info {
       flex: 1;
+      margin-right: 160px; /* 增加右边距为绝对定位的右侧内容留出空间 */
       
       .order-title {
-        font-size: 14px;
-        font-weight: 500;
-        color: $uni-text-color;
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
         display: block;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        line-height: 1.2;
+      }
+      
+      .order-car-customer {
+        font-size: 13px;
+        color: #333;
+        display: block;
+        margin-bottom: 6px;
+        line-height: 1.3;
       }
       
       .order-time {
         font-size: 12px;
-        color: $uni-text-color-grey;
+        color: #999;
         display: block;
-        margin-bottom: 4px;
-      }
-      
-      .order-location {
-        font-size: 12px;
-        color: $uni-text-color-grey;
+        line-height: 1.2;
       }
     }
     
     .order-right {
-      text-align: right;
+      position: absolute; /* 绝对定位到右边 */
+      right: 16px; /* 距离屏幕右边缘16px */
+      top: 16px; /* 距离顶部16px */
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      flex-shrink: 0; /* 防止被压缩 */
+      min-width: 140px; /* 增加最小宽度确保按钮有足够空间 */
       
       .order-amount {
-        font-size: 16px;
+        font-size: 18px; /* 增大字体 */
         font-weight: bold;
-        color: $uni-color-primary;
-        display: block;
-        margin-bottom: 4px;
+        color: #000;
+        margin-bottom: 10px;
+        line-height: 1.2;
       }
       
       .order-status {
-        font-size: 12px;
-        padding: 2px 8px;
-        border-radius: 10px;
-        
-        &.pending {
-          background: rgba($uni-color-secondary, 0.1);
-          color: $uni-color-secondary;
-        }
+        font-size: 13px; /* 稍微增大 */
+        padding: 6px 10px; /* 增加内边距 */
+        border-radius: 12px;
+        font-weight: 500;
+        margin-bottom: 10px;
         
         &.confirmed {
-          background: rgba($uni-color-primary, 0.1);
-          color: $uni-color-primary;
+          background: #e8f5e8;
+          color: #52c41a;
+        }
+        
+        &.pending {
+          background: #fff7e6;
+          color: #fa8c16;
         }
         
         &.ongoing {
-          background: rgba($uni-color-warning, 0.1);
-          color: $uni-color-warning;
+          background: #e6f7ff;
+          color: #1890ff;
         }
         
         &.completed {
-          background: rgba($uni-color-success, 0.1);
-          color: $uni-color-success;
+          background: #f6ffed;
+          color: #52c41a;
+        }
+      }
+      
+      .order-actions {
+        display: flex;
+        gap: 8px; /* 增加按钮间距 */
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        width: 100%;
+        
+        button {
+          padding: 6px 14px; /* 增大按钮 */
+          border-radius: 6px;
+          font-size: 13px; /* 稍微增大字体 */
+          font-weight: 500;
+          border: none;
+          cursor: pointer;
+          min-width: 50px; /* 确保按钮有最小宽度 */
+        }
+        
+        .contact-btn {
+          background: transparent;
+          color: #1890ff;
+          text-decoration: underline;
+          padding: 4px 6px; /* 联系客户按钮保持较小 */
+          min-width: auto;
+          
+          &:active {
+            color: #096dd9;
+          }
+        }
+        
+        .confirm-btn {
+          background: #1890ff;
+          color: white;
+          
+          &:active {
+            background: #096dd9;
+          }
+        }
+        
+        .reject-btn {
+          background: #ff4d4f;
+          color: white;
+          
+          &:active {
+            background: #d9363e;
+          }
         }
       }
     }
   }
 }
 
-.tool-list {
-  .tool-item {
-    display: flex;
-    align-items: center;
-    padding: 16px 0;
-    border-bottom: 1px solid $uni-border-color-light;
-    
-    &:last-child {
-      border-bottom: none;
-    }
-    
-    &:active {
-      background-color: $uni-bg-color-hover;
-    }
-    
-    .tool-icon {
-      color: $uni-color-primary;
-      font-size: 18px;
-      width: 24px;
-      margin-right: 16px;
-    }
-    
-    .tool-text {
-      flex: 1;
-      font-size: 14px;
-      color: $uni-text-color;
-    }
-    
-    .tool-arrow {
-      color: $uni-text-color-grey;
-      font-size: 14px;
-    }
-  }
-}
 </style>

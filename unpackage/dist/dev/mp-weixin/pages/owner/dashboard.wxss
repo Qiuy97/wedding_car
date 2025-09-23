@@ -35,38 +35,81 @@
 }
 .header-section.data-v-31997c8d {
   background: linear-gradient(135deg, #B76E79 0%, rgba(183, 110, 121, 0.8) 100%);
-  padding: 20px 16px;
+  padding: 20px 0;
+  /* 移除左右内边距限制 */
 }
 .header-section .header-content.data-v-31997c8d {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
+  display: flex !important;
+  align-items: center !important;
+  /* 强制整体垂直居中对齐 */
+  margin-bottom: 24px !important;
+  padding: 0 16px !important;
+  min-height: 64px !important;
+  box-sizing: border-box !important;
+  /* 头像在最左侧 */
+  /* 用户信息区域 - 与头像垂直居中对齐 */
+  /* 设置按钮在最右侧 */
 }
-.header-section .header-content .owner-info.data-v-31997c8d {
-  display: flex;
-  align-items: center;
-}
-.header-section .header-content .owner-info .owner-avatar.data-v-31997c8d {
-  width: 64px;
-  height: 64px;
+.header-section .header-content .owner-avatar.data-v-31997c8d {
+  width: 64px !important;
+  height: 64px !important;
   border-radius: 50%;
   border: 2px solid white;
-  margin-right: 16px;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  object-fit: cover;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle;
 }
-.header-section .header-content .owner-info .owner-details .owner-name.data-v-31997c8d {
-  font-size: 18px;
-  font-weight: bold;
-  color: white;
-  display: block;
-  margin-bottom: 4px;
+.header-section .header-content .user-info-area.data-v-31997c8d {
+  flex: 1 !important;
+  margin-left: 16px !important;
+  margin-right: 56px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  /* 内容垂直居中 */
+  height: 64px !important;
+  /* 与头像高度一致 */
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  /* 名字和标签行 */
+  /* 车主ID */
 }
-.header-section .header-content .owner-info .owner-details .owner-badge .badge-text.data-v-31997c8d {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 10px;
+.header-section .header-content .user-info-area .name-badge-row.data-v-31997c8d {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 4px !important;
+  margin-top: 0 !important;
+  padding: 0 !important;
+}
+.header-section .header-content .user-info-area .name-badge-row .owner-name.data-v-31997c8d {
+  font-size: 18px !important;
+  font-weight: bold !important;
+  color: white !important;
+  margin-right: 8px !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+.header-section .header-content .user-info-area .name-badge-row .owner-badge .badge-text.data-v-31997c8d {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  font-size: 12px !important;
+  padding: 2px 8px !important;
+  border-radius: 10px !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+.header-section .header-content .user-info-area .owner-id.data-v-31997c8d {
+  font-size: 13px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
 }
 .header-section .header-content .settings-btn.data-v-31997c8d {
   width: 40px;
@@ -78,6 +121,7 @@
   justify-content: center;
   color: white;
   font-size: 18px;
+  flex-shrink: 0;
 }
 .header-section .income-stats.data-v-31997c8d {
   display: grid;
@@ -101,46 +145,54 @@
 .content-scroll.data-v-31997c8d {
   padding-top: 12px;
 }
-.chart-section.data-v-31997c8d, .quick-functions.data-v-31997c8d, .recent-orders.data-v-31997c8d, .owner-tools.data-v-31997c8d {
+.chart-section.data-v-31997c8d, .quick-functions.data-v-31997c8d, .recent-orders.data-v-31997c8d {
   background: white;
   margin-bottom: 12px;
-  padding: 20px;
+  padding: 20px 0;
+  /* 移除左右内边距限制 */
 }
-.chart-section .section-header.data-v-31997c8d, .quick-functions .section-header.data-v-31997c8d, .recent-orders .section-header.data-v-31997c8d, .owner-tools .section-header.data-v-31997c8d {
+.chart-section .section-header.data-v-31997c8d, .quick-functions .section-header.data-v-31997c8d, .recent-orders .section-header.data-v-31997c8d {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding: 0 20px;
+  /* 给section-header添加左右内边距 */
 }
-.chart-section .section-header .section-title.data-v-31997c8d, .quick-functions .section-header .section-title.data-v-31997c8d, .recent-orders .section-header .section-title.data-v-31997c8d, .owner-tools .section-header .section-title.data-v-31997c8d {
+.chart-section .section-header .section-title.data-v-31997c8d, .quick-functions .section-header .section-title.data-v-31997c8d, .recent-orders .section-header .section-title.data-v-31997c8d {
   font-size: 16px;
   font-weight: bold;
   color: #2C3E50;
 }
-.chart-section .section-header .more-link.data-v-31997c8d, .quick-functions .section-header .more-link.data-v-31997c8d, .recent-orders .section-header .more-link.data-v-31997c8d, .owner-tools .section-header .more-link.data-v-31997c8d {
+.chart-section .section-header .more-link.data-v-31997c8d, .quick-functions .section-header .more-link.data-v-31997c8d, .recent-orders .section-header .more-link.data-v-31997c8d {
   font-size: 14px;
-  color: #B76E79;
+  color: #ff4d4f;
+  font-weight: 500;
 }
-.chart-section .section-header .period-picker.data-v-31997c8d, .quick-functions .section-header .period-picker.data-v-31997c8d, .recent-orders .section-header .period-picker.data-v-31997c8d, .owner-tools .section-header .period-picker.data-v-31997c8d {
+.chart-section .section-header .period-picker.data-v-31997c8d, .quick-functions .section-header .period-picker.data-v-31997c8d, .recent-orders .section-header .period-picker.data-v-31997c8d {
   display: flex;
   align-items: center;
   font-size: 14px;
   color: #2C3E50;
 }
-.chart-section .section-header .period-picker .fa-chevron-down.data-v-31997c8d, .quick-functions .section-header .period-picker .fa-chevron-down.data-v-31997c8d, .recent-orders .section-header .period-picker .fa-chevron-down.data-v-31997c8d, .owner-tools .section-header .period-picker .fa-chevron-down.data-v-31997c8d {
+.chart-section .section-header .period-picker .fa-chevron-down.data-v-31997c8d, .quick-functions .section-header .period-picker .fa-chevron-down.data-v-31997c8d, .recent-orders .section-header .period-picker .fa-chevron-down.data-v-31997c8d {
   margin-left: 4px;
   font-size: 12px;
 }
-.chart-section .section-title.data-v-31997c8d, .quick-functions .section-title.data-v-31997c8d, .recent-orders .section-title.data-v-31997c8d, .owner-tools .section-title.data-v-31997c8d {
+.chart-section .section-title.data-v-31997c8d, .quick-functions .section-title.data-v-31997c8d, .recent-orders .section-title.data-v-31997c8d {
   font-size: 16px;
   font-weight: bold;
   color: #2C3E50;
   margin-bottom: 16px;
 }
-.chart-section .section-title .title-text.data-v-31997c8d, .quick-functions .section-title .title-text.data-v-31997c8d, .recent-orders .section-title .title-text.data-v-31997c8d, .owner-tools .section-title .title-text.data-v-31997c8d {
+.chart-section .section-title .title-text.data-v-31997c8d, .quick-functions .section-title .title-text.data-v-31997c8d, .recent-orders .section-title .title-text.data-v-31997c8d {
   font-size: 16px;
   font-weight: bold;
   color: #2C3E50;
+}
+.chart-container.data-v-31997c8d {
+  padding: 0 20px;
+  /* 给图表容器添加左右内边距 */
 }
 .chart-container .chart-placeholder.data-v-31997c8d {
   height: 200px;
@@ -164,6 +216,8 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  padding: 0 20px;
+  /* 给功能网格添加左右内边距 */
 }
 .function-grid .function-item.data-v-31997c8d {
   display: flex;
@@ -210,11 +264,18 @@
   color: #2C3E50;
   text-align: center;
 }
+.order-list.data-v-31997c8d {
+  padding: 0;
+  /* 移除左右内边距限制，让内容可以到达屏幕边缘 */
+}
 .order-list .order-item.data-v-31997c8d {
+  position: relative;
+  /* 为绝对定位提供参考 */
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
+  align-items: flex-start;
+  padding: 16px 20px 16px 20px;
+  /* 左侧20px，右侧保持内边距但右侧内容会绝对定位 */
   border-bottom: 1px solid #f3f4f6;
 }
 .order-list .order-item.data-v-31997c8d:last-child {
@@ -222,79 +283,120 @@
 }
 .order-list .order-item .order-info.data-v-31997c8d {
   flex: 1;
+  margin-right: 160px;
+  /* 增加右边距为绝对定位的右侧内容留出空间 */
 }
 .order-list .order-item .order-info .order-title.data-v-31997c8d {
-  font-size: 14px;
-  font-weight: 500;
-  color: #2C3E50;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.order-list .order-item .order-info .order-car-customer.data-v-31997c8d {
+  font-size: 13px;
+  color: #333;
+  display: block;
+  margin-bottom: 6px;
+  line-height: 1.3;
 }
 .order-list .order-item .order-info .order-time.data-v-31997c8d {
   font-size: 12px;
-  color: #7F8C8D;
+  color: #999;
   display: block;
-  margin-bottom: 4px;
-}
-.order-list .order-item .order-info .order-location.data-v-31997c8d {
-  font-size: 12px;
-  color: #7F8C8D;
+  line-height: 1.2;
 }
 .order-list .order-item .order-right.data-v-31997c8d {
-  text-align: right;
+  position: absolute;
+  /* 绝对定位到右边 */
+  right: 16px;
+  /* 距离屏幕右边缘16px */
+  top: 16px;
+  /* 距离顶部16px */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  /* 防止被压缩 */
+  min-width: 140px;
+  /* 增加最小宽度确保按钮有足够空间 */
 }
 .order-list .order-item .order-right .order-amount.data-v-31997c8d {
-  font-size: 16px;
+  font-size: 18px;
+  /* 增大字体 */
   font-weight: bold;
-  color: #B76E79;
-  display: block;
-  margin-bottom: 4px;
+  color: #000;
+  margin-bottom: 10px;
+  line-height: 1.2;
 }
 .order-list .order-item .order-right .order-status.data-v-31997c8d {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-.order-list .order-item .order-right .order-status.pending.data-v-31997c8d {
-  background: rgba(212, 175, 55, 0.1);
-  color: #D4AF37;
+  font-size: 13px;
+  /* 稍微增大 */
+  padding: 6px 10px;
+  /* 增加内边距 */
+  border-radius: 12px;
+  font-weight: 500;
+  margin-bottom: 10px;
 }
 .order-list .order-item .order-right .order-status.confirmed.data-v-31997c8d {
-  background: rgba(183, 110, 121, 0.1);
-  color: #B76E79;
+  background: #e8f5e8;
+  color: #52c41a;
+}
+.order-list .order-item .order-right .order-status.pending.data-v-31997c8d {
+  background: #fff7e6;
+  color: #fa8c16;
 }
 .order-list .order-item .order-right .order-status.ongoing.data-v-31997c8d {
-  background: rgba(240, 173, 78, 0.1);
-  color: #f0ad4e;
+  background: #e6f7ff;
+  color: #1890ff;
 }
 .order-list .order-item .order-right .order-status.completed.data-v-31997c8d {
-  background: rgba(39, 174, 96, 0.1);
-  color: #27AE60;
+  background: #f6ffed;
+  color: #52c41a;
 }
-.tool-list .tool-item.data-v-31997c8d {
+.order-list .order-item .order-right .order-actions.data-v-31997c8d {
   display: flex;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #f3f4f6;
+  gap: 8px;
+  /* 增加按钮间距 */
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  width: 100%;
 }
-.tool-list .tool-item.data-v-31997c8d:last-child {
-  border-bottom: none;
+.order-list .order-item .order-right .order-actions button.data-v-31997c8d {
+  padding: 6px 14px;
+  /* 增大按钮 */
+  border-radius: 6px;
+  font-size: 13px;
+  /* 稍微增大字体 */
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  min-width: 50px;
+  /* 确保按钮有最小宽度 */
 }
-.tool-list .tool-item.data-v-31997c8d:active {
-  background-color: #f1f1f1;
+.order-list .order-item .order-right .order-actions .contact-btn.data-v-31997c8d {
+  background: transparent;
+  color: #1890ff;
+  text-decoration: underline;
+  padding: 4px 6px;
+  /* 联系客户按钮保持较小 */
+  min-width: auto;
 }
-.tool-list .tool-item .tool-icon.data-v-31997c8d {
-  color: #B76E79;
-  font-size: 18px;
-  width: 24px;
-  margin-right: 16px;
+.order-list .order-item .order-right .order-actions .contact-btn.data-v-31997c8d:active {
+  color: #096dd9;
 }
-.tool-list .tool-item .tool-text.data-v-31997c8d {
-  flex: 1;
-  font-size: 14px;
-  color: #2C3E50;
+.order-list .order-item .order-right .order-actions .confirm-btn.data-v-31997c8d {
+  background: #1890ff;
+  color: white;
 }
-.tool-list .tool-item .tool-arrow.data-v-31997c8d {
-  color: #7F8C8D;
-  font-size: 14px;
+.order-list .order-item .order-right .order-actions .confirm-btn.data-v-31997c8d:active {
+  background: #096dd9;
+}
+.order-list .order-item .order-right .order-actions .reject-btn.data-v-31997c8d {
+  background: #ff4d4f;
+  color: white;
+}
+.order-list .order-item .order-right .order-actions .reject-btn.data-v-31997c8d:active {
+  background: #d9363e;
 }
